@@ -14,15 +14,15 @@ type ItemType string
 
 const (
 	// RPGItemType for rpg
-	RPGItemType = "rpgitem"
+	RPGItemType ItemType = "rpgitem"
 	// VideGameType for video game
-	VideGameType = "videogame"
+	VideGameType ItemType = "videogame"
 	// BoardGameType for board game
-	BoardGameType = "boardgame"
+	BoardGameType ItemType = "boardgame"
 	// BoardGameAccessoryType for accessory
-	BoardGameAccessoryType = "boardgameaccessory"
+	BoardGameAccessoryType ItemType = "boardgameaccessory"
 	// BoardGameExpansionType for expansion
-	BoardGameExpansionType = "boardgameexpansion"
+	BoardGameExpansionType ItemType = "boardgameexpansion"
 )
 
 // searchItems is the result of the search in xmlapi2 bgg
