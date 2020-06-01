@@ -5,6 +5,9 @@ github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSs
 github.com/fzerorubigd/clictx v1.0.1 h1:wY/z80cGrTySGE+LStPq5AIm479SnDV9XVYTR07QfRs=
 github.com/fzerorubigd/clictx v1.0.1/go.mod h1:YwConIH86uUli1Uc45h9qBlahOwWjVgjfmipN57lkE0=
 github.com/fzerorubigd/protobuf v0.0.0-20191214233402-e3dbdb78d718 h1:39V301HFG6XQL/X1d5UDZ6TDZtgvMRHFjlXYrt7V1I0=
+github.com/go-acme/lego v1.2.1 h1:J9ybY0p+1+3yzGVP/JAUuksO41soQJCIJhwsa6UOZ7o=
+github.com/go-acme/lego v2.7.2+incompatible h1:ThhpPBgf6oa9X/vRd0kEmWOsX7+vmYdckmGZSb+FEp0=
+github.com/go-acme/lego v2.7.2+incompatible/go.mod h1:yzMNe9CasVUhkquNvti5nAtPmG94USbYxYrZfTkIn0M=
 github.com/jarcoal/httpmock v1.0.5 h1:cHtVEcTxRSX4J0je7mWPfc9BpDpqzXSJ5HbymZmyHck=
 github.com/jarcoal/httpmock v1.0.5/go.mod h1:ATjnClrvW/3tijVmpL/va5Z3aAyGvqU3gCT8nX0Txik=
 github.com/ogier/pflag v0.0.1 h1:RW6JSWSu/RkSatfcLtogGfFgpim5p7ARQ10ECk5O750=

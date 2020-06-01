@@ -13,8 +13,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func responders(req *http.Request) (*http.Response, error) {
-	head := `<?xml version="1.0" encoding="utf-8"?>
+func serachResponders(req *http.Request) (*http.Response, error) {
+	const head = `<?xml version="1.0" encoding="utf-8"?>
 	<items total="%d" termsofuse="https://boardgamegeek.com/xmlapi/termsofuse">`
 
 	items := func(name string, count int, types string) string {
@@ -62,7 +62,7 @@ func TestSearch(t *testing.T) {
 	httpmock.RegisterResponder(
 		"GET",
 		"https://boardgamegeek.com/"+searchPath,
-		responders,
+		serachResponders,
 	)
 
 	bgg := NewBGGClient()
