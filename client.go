@@ -28,11 +28,41 @@ func (bgg BGG) buildURL(path string, args map[string]string) string {
 	return u.String()
 }
 
+// OptionSetter lets you to modify the internal settings
+type OptionSetter func(*BGG)
+
+// SetClient allows you to modify the default client
+func SetClient(client *http.Client) OptionSetter {
+	return func(bgg *BGG) {
+		bgg.client = client
+	}
+}
+
+// SetHost changes the host, default is boardgamegeek.com
+func SetHost(host string) OptionSetter {
+	return func(bgg *BGG) {
+		bgg.host = host
+	}
+}
+
+// SetSchema changes the schema, default is https
+func SetSchema(schema string) OptionSetter {
+	return func(bgg *BGG) {
+		bgg.scheme = schema
+	}
+}
+
 // NewBGGClient returns a new client
-func NewBGGClient() *BGG {
-	return &BGG{
+func NewBGGClient(opt ...OptionSetter) *BGG {
+	result := &BGG{
 		host:   "boardgamegeek.com",
 		scheme: "https",
 		client: &http.Client{},
 	}
+
+	for i := range opt {
+		opt[i](result)
+	}
+
+	return result
 }
