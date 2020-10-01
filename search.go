@@ -8,21 +8,7 @@ import (
 	"strings"
 )
 
-// ItemType is the item type for the search api
-type ItemType string
 
-const (
-	// RPGItemType for rpg
-	RPGItemType ItemType = "rpgitem"
-	// VideGameType for video game
-	VideGameType ItemType = "videogame"
-	// BoardGameType for board game
-	BoardGameType ItemType = "boardgame"
-	// BoardGameAccessoryType for accessory
-	BoardGameAccessoryType ItemType = "boardgameaccessory"
-	// BoardGameExpansionType for expansion
-	BoardGameExpansionType ItemType = "boardgameexpansion"
-)
 
 // searchItems is the result of the search in xmlapi2 bgg
 type searchItems struct {
