@@ -10,6 +10,9 @@ type BGG struct {
 	host   string
 	scheme string
 	client *http.Client
+
+	// I prefer not to use the cookie jar since this is simpler
+	cookies []*http.Cookie
 }
 
 func (bgg BGG) buildURL(path string, args map[string]string) string {
@@ -49,6 +52,13 @@ func SetHost(host string) OptionSetter {
 func SetSchema(schema string) OptionSetter {
 	return func(bgg *BGG) {
 		bgg.scheme = schema
+	}
+}
+
+// SetCookies set the cookies for this object, in case the user is logged in already
+func SetCookies(c []*http.Cookie) OptionSetter {
+	return func(bgg *BGG) {
+		bgg.cookies = c
 	}
 }
 

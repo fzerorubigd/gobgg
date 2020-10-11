@@ -71,15 +71,15 @@ type Link struct {
 	Name string
 }
 
-type PlaysFixed struct {
+type Plays struct {
 	Total    int64
 	Page     int64
 	UserName string
 	UserID   int64
-	Items    []PlayFixed
+	Items    []Play
 }
 
-type PlayFixed struct {
+type Play struct {
 	ID         int64
 	Date       time.Time
 	Quantity   int64
@@ -88,17 +88,17 @@ type PlayFixed struct {
 	NowInStats bool
 	Location   string
 	Comment    string
-	Item       ItemFixed
-	Players    []PlayerFixed
+	Item       Item
+	Players    []Player
 }
 
-type ItemFixed struct {
+type Item struct {
 	Name string
 	Type ItemType
 	ID   int64
 }
 
-type PlayerFixed struct {
+type Player struct {
 	UserName      string
 	UserID        string
 	Name          string

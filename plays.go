@@ -112,14 +112,13 @@ func SetDateRangeMax(max time.Time) PlaysOptionSetter {
 type PlaysOptionSetter func(*PlaysOption)
 
 // Search using search api of the bgg, it get the list of requested items
-func (bgg *BGG) Plays(ctx context.Context, setter ...PlaysOptionSetter) (*PlaysFixed, error) {
+func (bgg *BGG) Plays(ctx context.Context, setter ...PlaysOptionSetter) (*Plays, error) {
 	opt := PlaysOption{}
 	for i := range setter {
 		setter[i](&opt)
 	}
 
-	args := map[string]string{
-	}
+	args := map[string]string{}
 
 	if opt.gameID == 0 && opt.userName == "" {
 		return nil, errors.New("at least game id or username should be there")
@@ -164,34 +163,34 @@ func (bgg *BGG) Plays(ctx context.Context, setter ...PlaysOptionSetter) (*PlaysF
 		return nil, fmt.Errorf("XML decoding failed: %w", err)
 	}
 
-	result := PlaysFixed{
+	result := Plays{
 		Total:    safeInt(pr.Total),
 		Page:     safeInt(pr.Page),
 		UserName: pr.Username,
 		UserID:   safeInt(pr.UserID),
-		Items:    make([]PlayFixed, 0, len(pr.Play)),
+		Items:    make([]Play, 0, len(pr.Play)),
 	}
 
 	for _, ply := range pr.Play {
-		item := PlayFixed{
+		item := Play{
 			ID:         safeInt(ply.ID),
 			Date:       safeDate(ply.Date),
 			Quantity:   safeInt(ply.Quantity),
-			Length:     time.Duration(safeInt(playsPath)) * time.Second,
+			Length:     time.Duration(safeInt(ply.Length)) * time.Second,
 			Incomplete: safeInt(ply.Incomplete) != 0,
 			NowInStats: safeInt(ply.NowInStats) != 0,
 			Location:   ply.Location,
 			Comment:    ply.Comments,
-			Item: ItemFixed{
+			Item: Item{
 				Name: ply.Item.Name,
 				Type: ItemType(ply.Item.ObjectType),
 				ID:   safeInt(ply.Item.ObjectID),
 			},
-			Players: make([]PlayerFixed, 0, len(ply.Players.Player)),
+			Players: make([]Player, 0, len(ply.Players.Player)),
 		}
 
 		for _, plr := range ply.Players.Player {
-			item.Players = append(item.Players, PlayerFixed{
+			item.Players = append(item.Players, Player{
 				UserName:      plr.Username,
 				UserID:        plr.Userid,
 				Name:          plr.Name,
