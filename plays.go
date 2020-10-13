@@ -38,11 +38,8 @@ type playsResponse struct {
 			ObjectType string `xml:"objecttype,attr"`
 			ObjectID   string `xml:"objectid,attr"`
 			Subtypes   struct {
-				Text    string `xml:",chardata"`
-				Subtype []struct {
-					Text  string `xml:",chardata"`
-					Value string `xml:"value,attr"`
-				} `xml:"subtype"`
+				Text    string         `xml:",chardata"`
+				Subtype []SimpleString `xml:"subtype"`
 			} `xml:"subtypes"`
 		} `xml:"item"`
 		Players struct {

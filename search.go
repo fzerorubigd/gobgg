@@ -8,8 +8,6 @@ import (
 	"strings"
 )
 
-
-
 // searchItems is the result of the search in xmlapi2 bgg
 type searchItems struct {
 	XMLName    xml.Name `xml:"items"`

@@ -23,6 +23,19 @@ const (
 	BoardGameExpansionType ItemType = "boardgameexpansion"
 )
 
+// SimpleString is the string
+type SimpleString struct {
+	Text  string `xml:",chardata"`
+	Value string `xml:"value,attr"`
+}
+
+func (s *SimpleString) String() string {
+	if s == nil {
+		return ""
+	}
+	return s.Value
+}
+
 // NameStruct is the name from the api
 type NameStruct struct {
 	Text      string `xml:",chardata"`

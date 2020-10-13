@@ -25,37 +25,16 @@ type thingItems struct {
 		Image         string       `xml:"image"`
 		Name          []NameStruct `xml:"name"`
 		Description   string       `xml:"description"`
-		Yearpublished struct {
-			Text  string `xml:",chardata"`
-			Value string `xml:"value,attr"`
-		} `xml:"yearpublished"`
-		Minplayers struct {
-			Text  string `xml:",chardata"`
-			Value string `xml:"value,attr"`
-		} `xml:"minplayers"`
-		Maxplayers struct {
-			Text  string `xml:",chardata"`
-			Value string `xml:"value,attr"`
-		} `xml:"maxplayers"`
-		Poll        []PollStruct `xml:"poll"`
-		Playingtime struct {
-			Text  string `xml:",chardata"`
-			Value string `xml:"value,attr"`
-		} `xml:"playingtime"`
-		Minplaytime struct {
-			Text  string `xml:",chardata"`
-			Value string `xml:"value,attr"`
-		} `xml:"minplaytime"`
-		Maxplaytime struct {
-			Text  string `xml:",chardata"`
-			Value string `xml:"value,attr"`
-		} `xml:"maxplaytime"`
-		Minage struct {
-			Text  string `xml:",chardata"`
-			Value string `xml:"value,attr"`
-		} `xml:"minage"`
-		Link   []LinkStruct `xml:"link"`
-		Videos struct {
+		Yearpublished SimpleString `xml:"yearpublished"`
+		Minplayers    SimpleString `xml:"minplayers"`
+		Maxplayers    SimpleString `xml:"maxplayers"`
+		Poll          []PollStruct `xml:"poll"`
+		Playingtime   SimpleString `xml:"playingtime"`
+		Minplaytime   SimpleString `xml:"minplaytime"`
+		Maxplaytime   SimpleString `xml:"maxplaytime"`
+		Minage        SimpleString `xml:"minage"`
+		Link          []LinkStruct `xml:"link"`
+		Videos        struct {
 			Text  string `xml:",chardata"`
 			Total string `xml:"total,attr"`
 			Video []struct {
@@ -91,30 +70,12 @@ type thingItems struct {
 					Sortindex string `xml:"sortindex,attr"`
 					Value     string `xml:"value,attr"`
 				} `xml:"name"`
-				Yearpublished struct {
-					Text  string `xml:",chardata"`
-					Value string `xml:"value,attr"`
-				} `xml:"yearpublished"`
-				Productcode struct {
-					Text  string `xml:",chardata"`
-					Value string `xml:"value,attr"`
-				} `xml:"productcode"`
-				Width struct {
-					Text  string `xml:",chardata"`
-					Value string `xml:"value,attr"`
-				} `xml:"width"`
-				Length struct {
-					Text  string `xml:",chardata"`
-					Value string `xml:"value,attr"`
-				} `xml:"length"`
-				Depth struct {
-					Text  string `xml:",chardata"`
-					Value string `xml:"value,attr"`
-				} `xml:"depth"`
-				Weight struct {
-					Text  string `xml:",chardata"`
-					Value string `xml:"value,attr"`
-				} `xml:"weight"`
+				Yearpublished SimpleString `xml:"yearpublished"`
+				Productcode   SimpleString `xml:"productcode"`
+				Width         SimpleString `xml:"width"`
+				Length        SimpleString `xml:"length"`
+				Depth         SimpleString `xml:"depth"`
+				Weight        SimpleString `xml:"weight"`
 			} `xml:"item"`
 		} `xml:"versions"`
 		Comments struct {
@@ -131,25 +92,16 @@ type thingItems struct {
 		Marketplacelistings struct {
 			Text    string `xml:",chardata"`
 			Listing []struct {
-				Text     string `xml:",chardata"`
-				Listdate struct {
-					Text  string `xml:",chardata"`
-					Value string `xml:"value,attr"`
-				} `xml:"listdate"`
-				Price struct {
+				Text     string       `xml:",chardata"`
+				Listdate SimpleString `xml:"listdate"`
+				Price    struct {
 					Text     string `xml:",chardata"`
 					Currency string `xml:"currency,attr"`
 					Value    string `xml:"value,attr"`
 				} `xml:"price"`
-				Condition struct {
-					Text  string `xml:",chardata"`
-					Value string `xml:"value,attr"`
-				} `xml:"condition"`
-				Notes struct {
-					Text  string `xml:",chardata"`
-					Value string `xml:"value,attr"`
-				} `xml:"notes"`
-				Link struct {
+				Condition SimpleString `xml:"condition"`
+				Notes     SimpleString `xml:"notes"`
+				Link      struct {
 					Text  string `xml:",chardata"`
 					Href  string `xml:"href,attr"`
 					Title string `xml:"title,attr"`

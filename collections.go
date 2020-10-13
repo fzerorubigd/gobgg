@@ -38,29 +38,14 @@ type collectionItems struct {
 			Playingtime string `xml:"playingtime,attr"`
 			Numowned    string `xml:"numowned,attr"`
 			Rating      struct {
-				Text       string `xml:",chardata"`
-				Value      string `xml:"value,attr"`
-				Usersrated struct {
-					Text  string `xml:",chardata"`
-					Value string `xml:"value,attr"`
-				} `xml:"usersrated"`
-				Average struct {
-					Text  string `xml:",chardata"`
-					Value string `xml:"value,attr"`
-				} `xml:"average"`
-				Bayesaverage struct {
-					Text  string `xml:",chardata"`
-					Value string `xml:"value,attr"`
-				} `xml:"bayesaverage"`
-				Stddev struct {
-					Text  string `xml:",chardata"`
-					Value string `xml:"value,attr"`
-				} `xml:"stddev"`
-				Median struct {
-					Text  string `xml:",chardata"`
-					Value string `xml:"value,attr"`
-				} `xml:"median"`
-				Ranks struct {
+				Text         string       `xml:",chardata"`
+				Value        string       `xml:"value,attr"`
+				Usersrated   SimpleString `xml:"usersrated"`
+				Average      SimpleString `xml:"average"`
+				Bayesaverage SimpleString `xml:"bayesaverage"`
+				Stddev       SimpleString `xml:"stddev"`
+				Median       SimpleString `xml:"median"`
+				Ranks        struct {
 					Text string `xml:",chardata"`
 					Rank []struct {
 						Text         string `xml:",chardata"`
@@ -93,48 +78,19 @@ type collectionItems struct {
 		Version         struct {
 			Text string `xml:",chardata"`
 			Item struct {
-				Text      string `xml:",chardata"`
-				Type      string `xml:"type,attr"`
-				ID        string `xml:"id,attr"`
-				Thumbnail string `xml:"thumbnail"`
-				Image     string `xml:"image"`
-				Link      []struct {
-					Text    string `xml:",chardata"`
-					Type    string `xml:"type,attr"`
-					ID      string `xml:"id,attr"`
-					Value   string `xml:"value,attr"`
-					Inbound string `xml:"inbound,attr"`
-				} `xml:"link"`
-				Name struct {
-					Text      string `xml:",chardata"`
-					Type      string `xml:"type,attr"`
-					Sortindex string `xml:"sortindex,attr"`
-					Value     string `xml:"value,attr"`
-				} `xml:"name"`
-				Yearpublished struct {
-					Text  string `xml:",chardata"`
-					Value string `xml:"value,attr"`
-				} `xml:"yearpublished"`
-				Productcode struct {
-					Text  string `xml:",chardata"`
-					Value string `xml:"value,attr"`
-				} `xml:"productcode"`
-				Width struct {
-					Text  string `xml:",chardata"`
-					Value string `xml:"value,attr"`
-				} `xml:"width"`
-				Length struct {
-					Text  string `xml:",chardata"`
-					Value string `xml:"value,attr"`
-				} `xml:"length"`
-				Depth struct {
-					Text  string `xml:",chardata"`
-					Value string `xml:"value,attr"`
-				} `xml:"depth"`
-				Weight struct {
-					Text  string `xml:",chardata"`
-					Value string `xml:"value,attr"`
-				} `xml:"weight"`
+				Text          string       `xml:",chardata"`
+				Type          string       `xml:"type,attr"`
+				ID            string       `xml:"id,attr"`
+				Thumbnail     string       `xml:"thumbnail"`
+				Image         string       `xml:"image"`
+				Link          []LinkStruct `xml:"link"`
+				Name          NameStruct   `xml:"name"`
+				Yearpublished SimpleString `xml:"yearpublished"`
+				Productcode   SimpleString `xml:"productcode"`
+				Width         SimpleString `xml:"width"`
+				Length        SimpleString `xml:"length"`
+				Depth         SimpleString `xml:"depth"`
+				Weight        SimpleString `xml:"weight"`
 			} `xml:"item"`
 		} `xml:"version"`
 		Originalname string `xml:"originalname"`
@@ -179,6 +135,14 @@ func (c *GetCollectionOptions) toMap() map[string]string {
 		result["version"] = "1"
 	}
 
+	if c.subtype != "" {
+		result["subtype"] = c.subtype
+	}
+
+	if c.excludesubtype != "" {
+		result["excludesubtype"] = c.excludesubtype
+	}
+
 	return result
 }
 
@@ -189,6 +153,22 @@ type CollectionOptionSetter func(*GetCollectionOptions)
 func SetVersion(version bool) CollectionOptionSetter {
 	return func(co *GetCollectionOptions) {
 		co.version = version
+	}
+}
+
+// SetSubType  Specifies which collection you want to retrieve.
+// TYPE may be boardgame, boardgameexpansion, boardgameaccessory,
+// rpgitem, rpgissue, or videogame; the default is boardgame
+func SetSubType(subType ItemType) CollectionOptionSetter {
+	return func(co *GetCollectionOptions) {
+		co.subtype = string(subType)
+	}
+}
+
+// SetExcludeSubtype  Specifies which subtype you want to exclude from the results.
+func SetExcludeSubtype(subType ItemType) CollectionOptionSetter {
+	return func(co *GetCollectionOptions) {
+		co.excludesubtype = string(subType)
 	}
 }
 
@@ -245,4 +225,6 @@ func (bgg *BGG) GetCollection(ctx context.Context, username string, options ...C
 	if err = dec.Decode(&result); err != nil {
 		return nil, fmt.Errorf("XML decoding failed: %w", err)
 	}
+
+	return result, nil
 }
