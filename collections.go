@@ -204,19 +204,24 @@ func (bgg *BGG) GetCollection(ctx context.Context, username string, options ...C
 			return nil, fmt.Errorf("http call failed: %w", err)
 		}
 
-		if resp.StatusCode == http.StatusAccepted {
-			resp.Body.Close() // we don't need it
-
-			delay += time.Duration(i) * time.Second
-			if delay > 30*time.Second {
-				delay = 30 * time.Second
-			}
-			select {
-			case <-time.After(delay):
-			case <-ctx.Done():
-				return nil, ctx.Err()
-			}
+		if resp.StatusCode == http.StatusOK {
+			break
 		}
+		resp.Body.Close() // we don't need it
+		if resp.StatusCode != http.StatusAccepted {
+			return nil, fmt.Errorf("invalid status: %q", resp.Status)
+		}
+
+		delay += time.Duration(i) * time.Second
+		if delay > 30*time.Second {
+			delay = 30 * time.Second
+		}
+		select {
+		case <-time.After(delay):
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		}
+
 	}
 	defer resp.Body.Close()
 
