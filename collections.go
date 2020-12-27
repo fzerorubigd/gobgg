@@ -10,6 +10,24 @@ import (
 
 const collectionPath = "/xmlapi2/collection"
 
+type CollectionType string
+
+const (
+	CollectionTypeOwn        CollectionType = "own"
+	CollectionTypeRated      CollectionType = "rated"
+	CollectionTypePlayed     CollectionType = "played"
+	CollectionTypeComment    CollectionType = "comment"
+	CollectionTypeTrade      CollectionType = "trade"
+	CollectionTypeWant       CollectionType = "want"
+	CollectionTypeWishList   CollectionType = "wishlist"
+	CollectionTypePreorder   CollectionType = "preorder"
+	CollectionTypeWantToPlay CollectionType = "wanttoplay"
+	CollectionTypeWantToBuy  CollectionType = "wanttobuy"
+	CollectionTypePrevOwned  CollectionType = "prevowned"
+	CollectionTypeHasParts   CollectionType = "hasparts"
+	CollectionTypeWantParts  CollectionType = "wantparts"
+)
+
 type collectionItems struct {
 	XMLName    xml.Name `xml:"items"`
 	Text       string   `xml:",chardata"`
@@ -99,34 +117,21 @@ type collectionItems struct {
 
 // GetCollectionOptions is the option used to handle the collection request
 type GetCollectionOptions struct {
-	version          bool
-	subtype          string
-	excludesubtype   string
-	brief            bool
-	stats            bool
-	own              bool
-	rated            bool
-	played           bool
-	comment          bool
-	trade            bool
-	want             bool
-	wishlist         bool
-	wishlistPriority int
-	preordered       bool
-	wanttoplay       bool
-	wanttobuy        bool
-	prevowned        bool
-	hasparts         bool
-	wantparts        bool
-	minrating        int
-	rating           int
-	minbggrating     int
-	bggrating        int
-	minplays         int
-	maxplays         int
-	showprivate      bool
-	collid           int
-	modifiedsince    *time.Time
+	version        bool
+	subtype        string
+	excludesubtype string
+	brief          bool
+	stats          bool
+	options        []CollectionType
+	minrating      int
+	rating         int
+	minbggrating   int
+	bggrating      int
+	minplays       int
+	maxplays       int
+	showprivate    bool
+	collid         int
+	modifiedsince  *time.Time
 }
 
 func (c *GetCollectionOptions) toMap() map[string]string {
@@ -141,6 +146,10 @@ func (c *GetCollectionOptions) toMap() map[string]string {
 
 	if c.excludesubtype != "" {
 		result["excludesubtype"] = c.excludesubtype
+	}
+
+	for i := range c.options {
+		result[string(c.options[i])] = "1"
 	}
 
 	return result
@@ -169,6 +178,13 @@ func SetSubType(subType ItemType) CollectionOptionSetter {
 func SetExcludeSubtype(subType ItemType) CollectionOptionSetter {
 	return func(co *GetCollectionOptions) {
 		co.excludesubtype = string(subType)
+	}
+}
+
+// SetCollectionTypes returns the collection types
+func SetCollectionTypes(typ ...CollectionType) CollectionOptionSetter {
+	return func(options *GetCollectionOptions) {
+		options.options = typ
 	}
 }
 
