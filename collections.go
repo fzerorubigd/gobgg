@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/xml"
 	"fmt"
+	"html"
 	"net/http"
 	"time"
 )
@@ -37,7 +38,7 @@ type collectionItems struct {
 	Item       []struct {
 		Text       string `xml:",chardata"`
 		Objecttype string `xml:"objecttype,attr"`
-		Objectid   string `xml:"objectid,attr"`
+		Objectid   int64  `xml:"objectid,attr"`
 		Subtype    string `xml:"subtype,attr"`
 		Collid     string `xml:"collid,attr"`
 		Name       struct {
@@ -189,7 +190,7 @@ func SetCollectionTypes(typ ...CollectionType) CollectionOptionSetter {
 }
 
 // GetCollection is to get the collections of a user
-func (bgg *BGG) GetCollection(ctx context.Context, username string, options ...CollectionOptionSetter) (interface{}, error) {
+func (bgg *BGG) GetCollection(ctx context.Context, username string, options ...CollectionOptionSetter) ([]ThingResult, error) {
 	opt := GetCollectionOptions{}
 
 	for i := range options {
@@ -247,5 +248,18 @@ func (bgg *BGG) GetCollection(ctx context.Context, username string, options ...C
 		return nil, fmt.Errorf("XML decoding failed: %w", err)
 	}
 
-	return result, nil
+	ret := make([]ThingResult, len(result.Item))
+	for i := range result.Item {
+		ret[i] = ThingResult{
+			ID:            result.Item[i].Objectid,
+			Type:          ItemType(result.Item[i].Objecttype),
+			YearPublished: int(safeInt(result.Item[i].Yearpublished)),
+			Description:   html.UnescapeString(result.Item[i].Text),
+			Thumbnail:     result.Item[i].Thumbnail,
+			Image:         result.Item[i].Image,
+		}
+
+		ret[i].Name = result.Item[i].Name.Text
+	}
+	return ret, nil
 }
