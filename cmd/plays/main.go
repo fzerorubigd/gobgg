@@ -1,9 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
-	"log"
-	"syscall"
+	"os"
 
 	"github.com/fzerorubigd/clictx"
 
@@ -12,21 +12,15 @@ import (
 
 func main() {
 	var (
-		pass, user string
+		pass string
 	)
 
 	flag.StringVar(&pass, "password", "", "the pass")
-	flag.StringVar(&user, "username", "", "the username")
-	flag.Parse()
 
-	ctx := clictx.Context(syscall.SIGTERM)
+	ctx := clictx.DefaultContext()
 	bgg := gobgg.NewBGGClient()
 
-	err := bgg.Login(ctx, user, pass)
-	if err != nil {
-		panic(err)
-	}
-
+	var plays []gobgg.Play
 	for i := 0; ; i++ {
 		p, err := bgg.Plays(ctx, gobgg.SetUserName("fzerorubigd"), gobgg.SetPageNumber(i+1))
 		if err != nil {
@@ -37,10 +31,9 @@ func main() {
 			break
 		}
 
-		for _, pl := range p.Items {
-			if err := bgg.PostPlay(ctx, pl); err != nil {
-				log.Fatal(err)
-			}
-		}
+		plays = append(plays, p.Items...)
 	}
+	enc := json.NewEncoder(os.Stdout)
+	enc.SetIndent("", "  ")
+	_ = enc.Encode(plays)
 }
