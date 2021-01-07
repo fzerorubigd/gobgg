@@ -6,27 +6,42 @@ import (
 	"fmt"
 	"html"
 	"net/http"
+	"strings"
 	"time"
 )
 
 const collectionPath = "/xmlapi2/collection"
 
+// CollectionType is the bgg collection type
 type CollectionType string
 
 const (
-	CollectionTypeOwn        CollectionType = "own"
-	CollectionTypeRated      CollectionType = "rated"
-	CollectionTypePlayed     CollectionType = "played"
-	CollectionTypeComment    CollectionType = "comment"
-	CollectionTypeTrade      CollectionType = "trade"
-	CollectionTypeWant       CollectionType = "want"
-	CollectionTypeWishList   CollectionType = "wishlist"
-	CollectionTypePreorder   CollectionType = "preorder"
+	// CollectionTypeOwn is the owned items
+	CollectionTypeOwn CollectionType = "own"
+	// CollectionTypeRated is rated items
+	CollectionTypeRated CollectionType = "rated"
+	// CollectionTypePlayed is played items
+	CollectionTypePlayed CollectionType = "played"
+	// CollectionTypeComment is commented items
+	CollectionTypeComment CollectionType = "comment"
+	// CollectionTypeTrade is in trade list item
+	CollectionTypeTrade CollectionType = "trade"
+	// CollectionTypeWant is in want list item
+	CollectionTypeWant CollectionType = "want"
+	// CollectionTypeWishList is the wishlist items
+	CollectionTypeWishList CollectionType = "wishlist"
+	// CollectionTypePreorder is the pre orders item
+	CollectionTypePreorder CollectionType = "preorder"
+	// CollectionTypeWantToPlay is want to play items
 	CollectionTypeWantToPlay CollectionType = "wanttoplay"
-	CollectionTypeWantToBuy  CollectionType = "wanttobuy"
-	CollectionTypePrevOwned  CollectionType = "prevowned"
-	CollectionTypeHasParts   CollectionType = "hasparts"
-	CollectionTypeWantParts  CollectionType = "wantparts"
+	// CollectionTypeWantToBuy is want to buy items
+	CollectionTypeWantToBuy CollectionType = "wanttobuy"
+	// CollectionTypePrevOwned is previously owned items
+	CollectionTypePrevOwned CollectionType = "prevowned"
+	// CollectionTypeHasParts has parts item
+	CollectionTypeHasParts CollectionType = "hasparts"
+	// CollectionTypeWantParts want parts item
+	CollectionTypeWantParts CollectionType = "wantparts"
 )
 
 type collectionItems struct {
@@ -80,18 +95,18 @@ type collectionItems struct {
 		} `xml:"stats"`
 		Status struct {
 			Text             string `xml:",chardata"`
-			Own              string `xml:"own,attr"`
-			Prevowned        string `xml:"prevowned,attr"`
-			Fortrade         string `xml:"fortrade,attr"`
-			Want             string `xml:"want,attr"`
-			Wanttoplay       string `xml:"wanttoplay,attr"`
-			Wanttobuy        string `xml:"wanttobuy,attr"`
-			Wishlist         string `xml:"wishlist,attr"`
-			Preordered       string `xml:"preordered,attr"`
+			Own              int    `xml:"own,attr"`
+			Prevowned        int    `xml:"prevowned,attr"`
+			Fortrade         int    `xml:"fortrade,attr"`
+			Want             int    `xml:"want,attr"`
+			Wanttoplay       int    `xml:"wanttoplay,attr"`
+			Wanttobuy        int    `xml:"wanttobuy,attr"`
+			Wishlist         int    `xml:"wishlist,attr"`
+			Preordered       int    `xml:"preordered,attr"`
 			Lastmodified     string `xml:"lastmodified,attr"`
-			Wishlistpriority string `xml:"wishlistpriority,attr"`
+			Wishlistpriority int    `xml:"wishlistpriority,attr"`
 		} `xml:"status"`
-		Numplays        string `xml:"numplays"`
+		Numplays        int    `xml:"numplays"`
 		Comment         string `xml:"comment"`
 		Wishlistcomment string `xml:"wishlistcomment"`
 		Version         struct {
@@ -149,6 +164,22 @@ func (c *GetCollectionOptions) toMap() map[string]string {
 		result["excludesubtype"] = c.excludesubtype
 	}
 
+	if c.minbggrating > 0 {
+		result["minbggrating"] = fmt.Sprint(c.minbggrating)
+	}
+
+	if c.bggrating > 0 {
+		result["bggrating"] = fmt.Sprint(c.bggrating)
+	}
+
+	if c.minrating > 0 {
+		result["minrating"] = fmt.Sprint(c.minrating)
+	}
+
+	if c.rating > 0 {
+		result["rating"] = fmt.Sprint(c.rating)
+	}
+
 	for i := range c.options {
 		result[string(c.options[i])] = "1"
 	}
@@ -186,6 +217,42 @@ func SetExcludeSubtype(subType ItemType) CollectionOptionSetter {
 func SetCollectionTypes(typ ...CollectionType) CollectionOptionSetter {
 	return func(options *GetCollectionOptions) {
 		options.options = typ
+	}
+}
+
+// SetMinRating is the minimum personal rating for this item for this user
+func SetMinRating(rate int) CollectionOptionSetter {
+	return func(options *GetCollectionOptions) {
+		if rate > 0 && rate <= 10 {
+			options.minrating = rate
+		}
+	}
+}
+
+// SetRating is the exact personal rating for this item for this user
+func SetRating(rate int) CollectionOptionSetter {
+	return func(options *GetCollectionOptions) {
+		if rate > 0 && rate <= 10 {
+			options.rating = rate
+		}
+	}
+}
+
+// SetBGGRating is the exact bgg rating for this item
+func SetBGGRating(rate int) CollectionOptionSetter {
+	return func(options *GetCollectionOptions) {
+		if rate > 0 && rate <= 10 {
+			options.bggrating = rate
+		}
+	}
+}
+
+// SetMinBGGRating is the minimum bgg rating for this item
+func SetMinBGGRating(rate int) CollectionOptionSetter {
+	return func(options *GetCollectionOptions) {
+		if rate > 0 && rate <= 10 {
+			options.minbggrating = rate
+		}
 	}
 }
 
@@ -254,7 +321,7 @@ func (bgg *BGG) GetCollection(ctx context.Context, username string, options ...C
 			ID:            result.Item[i].Objectid,
 			Type:          ItemType(result.Item[i].Objecttype),
 			YearPublished: int(safeInt(result.Item[i].Yearpublished)),
-			Description:   html.UnescapeString(result.Item[i].Text),
+			Description:   strings.Trim(html.UnescapeString(result.Item[i].Text), "\n\t "),
 			Thumbnail:     result.Item[i].Thumbnail,
 			Image:         result.Item[i].Image,
 		}

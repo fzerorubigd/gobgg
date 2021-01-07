@@ -11,18 +11,15 @@ import (
 )
 
 func main() {
-	var (
-		pass string
-	)
-
-	flag.StringVar(&pass, "password", "", "the pass")
+	var username string
+	flag.StringVar(&username, "username", "", "the username")
 
 	ctx := clictx.DefaultContext()
 	bgg := gobgg.NewBGGClient()
 
 	var plays []gobgg.Play
 	for i := 0; ; i++ {
-		p, err := bgg.Plays(ctx, gobgg.SetUserName("fzerorubigd"), gobgg.SetPageNumber(i+1))
+		p, err := bgg.Plays(ctx, gobgg.SetUserName(username), gobgg.SetPageNumber(i+1))
 		if err != nil {
 			panic(err)
 		}
