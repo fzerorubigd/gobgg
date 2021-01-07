@@ -136,18 +136,18 @@ type GetCollectionOptions struct {
 	version        bool
 	subtype        string
 	excludesubtype string
-	brief          bool
-	stats          bool
-	options        []CollectionType
-	minrating      int
-	rating         int
-	minbggrating   int
-	bggrating      int
-	minplays       int
-	maxplays       int
-	showprivate    bool
-	collid         int
-	modifiedsince  *time.Time
+	//brief          bool
+	//stats          bool
+	options      []CollectionType
+	minrating    int
+	rating       int
+	minbggrating int
+	bggrating    int
+	minplays     int
+	maxplays     int
+	//showprivate   bool
+	//collid        int
+	modifiedsince *time.Time
 }
 
 func (c *GetCollectionOptions) toMap() map[string]string {
@@ -182,6 +182,18 @@ func (c *GetCollectionOptions) toMap() map[string]string {
 
 	for i := range c.options {
 		result[string(c.options[i])] = "1"
+	}
+
+	if c.modifiedsince != nil {
+		result["modifiedsince"] = c.modifiedsince.Format("06-01-02")
+	}
+
+	if c.minplays > 0 {
+		result["minplays"] = fmt.Sprint(c.minplays)
+	}
+
+	if c.maxplays > 0 {
+		result["maxplays"] = fmt.Sprint(c.maxplays)
 	}
 
 	return result
@@ -253,6 +265,27 @@ func SetMinBGGRating(rate int) CollectionOptionSetter {
 		if rate > 0 && rate <= 10 {
 			options.minbggrating = rate
 		}
+	}
+}
+
+// SetModifiedSince to set the modified since flag
+func SetModifiedSince(t time.Time) CollectionOptionSetter {
+	return func(options *GetCollectionOptions) {
+		options.modifiedsince = &t
+	}
+}
+
+// SetMinPlays show games with min plays
+func SetMinPlays(plays int) CollectionOptionSetter {
+	return func(options *GetCollectionOptions) {
+		options.minplays = plays
+	}
+}
+
+// SetMaxPlays show games with max plays
+func SetMaxPlays(plays int) CollectionOptionSetter {
+	return func(options *GetCollectionOptions) {
+		options.maxplays = plays
 	}
 }
 
