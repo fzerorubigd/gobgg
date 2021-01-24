@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/http/httputil"
 )
 
 const loginPath = "login/api/v1"
@@ -39,8 +38,8 @@ func (bgg *BGG) Login(ctx context.Context, username, password string) error {
 	}
 	defer resp.Body.Close()
 
-	d, _ := httputil.DumpResponse(resp, true)
-	fmt.Println(string(d))
+	//d, _ := httputil.DumpResponse(resp, true)
+	//fmt.Println(string(d))
 
 	if resp.StatusCode < 200 && resp.StatusCode >= 300 {
 		return fmt.Errorf("maybe, invalid username/password")

@@ -154,9 +154,8 @@ func (bgg *BGG) Plays(ctx context.Context, setter ...PlaysOptionSetter) (*Plays,
 	}
 	defer resp.Body.Close()
 
-	dec := xml.NewDecoder(resp.Body)
 	var pr playsResponse
-	if err = dec.Decode(&pr); err != nil {
+	if err = decode(resp.Body, &pr); err != nil {
 		return nil, fmt.Errorf("XML decoding failed: %w", err)
 	}
 

@@ -177,10 +177,8 @@ func (bgg *BGG) GetThings(ctx context.Context, setters ...GetOptionSetter) ([]Th
 		return nil, fmt.Errorf("http call failed: %w", err)
 	}
 	defer resp.Body.Close()
-
-	dec := xml.NewDecoder(resp.Body)
 	var result thingItems
-	if err = dec.Decode(&result); err != nil {
+	if err = decode(resp.Body, &result); err != nil {
 		return nil, fmt.Errorf("XML decoding failed: %w", err)
 	}
 

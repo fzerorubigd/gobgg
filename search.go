@@ -94,9 +94,8 @@ func (bgg *BGG) Search(ctx context.Context, query string, setter ...SearchOption
 	}
 	defer resp.Body.Close()
 
-	dec := xml.NewDecoder(resp.Body)
 	var result searchItems
-	if err = dec.Decode(&result); err != nil {
+	if err = decode(resp.Body, &result); err != nil {
 		return nil, fmt.Errorf("XML decoding failed: %w", err)
 	}
 

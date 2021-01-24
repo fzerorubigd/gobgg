@@ -1,10 +1,13 @@
 package gobgg
 
 import (
+	"encoding/xml"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"log"
 	"strconv"
 	"time"
-
-	"github.com/go-acme/lego/log"
 )
 
 // ItemType is the item type for the search api
@@ -172,4 +175,28 @@ func safeDate(str string) time.Time {
 	}
 
 	return ts
+}
+
+type bggError struct {
+	XMLName xml.Name `xml:"error"`
+	Text    string   `xml:",chardata"`
+	Message string   `xml:"message"`
+}
+
+func decode(r io.Reader, in interface{}) error {
+	buf, err := ioutil.ReadAll(r)
+	if err != nil {
+		return fmt.Errorf("error reading data: %w", err)
+	}
+
+	err = xml.Unmarshal(buf, in)
+	if err == nil {
+		return nil
+	}
+	var errType bggError
+	if err2 := xml.Unmarshal(buf, &errType); err2 != nil {
+		return err
+	}
+
+	return fmt.Errorf("error from bgg: %q", errType.Message)
 }
