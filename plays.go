@@ -105,10 +105,10 @@ func SetDateRangeMax(max time.Time) PlaysOptionSetter {
 	}
 }
 
-// SearchOptionSetter is used to handle the func option in search api
+// PlaysOptionSetter is used to handle the func option in plays api
 type PlaysOptionSetter func(*PlaysOption)
 
-// Search using search api of the bgg, it get the list of requested items
+// Plays using plays api of the bgg, it get the list of requested items
 func (bgg *BGG) Plays(ctx context.Context, setter ...PlaysOptionSetter) (*Plays, error) {
 	opt := PlaysOption{}
 	for i := range setter {
