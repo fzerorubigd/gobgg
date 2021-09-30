@@ -65,8 +65,79 @@ type PollStruct struct {
 	} `xml:"results"`
 }
 
-// Poll is a single poll in bgg
+type Statistics struct {
+	Text    string `xml:",chardata"`
+	Page    string `xml:"page,attr"`
+	Ratings struct {
+		Text       string `xml:",chardata"`
+		Usersrated struct {
+			Text  string `xml:",chardata"`
+			Value string `xml:"value,attr"`
+		} `xml:"usersrated"`
+		Average struct {
+			Text  string `xml:",chardata"`
+			Value string `xml:"value,attr"`
+		} `xml:"average"`
+		Bayesaverage struct {
+			Text  string `xml:",chardata"`
+			Value string `xml:"value,attr"`
+		} `xml:"bayesaverage"`
+		Ranks struct {
+			Text string `xml:",chardata"`
+			Rank []struct {
+				Text         string `xml:",chardata"`
+				Type         string `xml:"type,attr"`
+				ID           string `xml:"id,attr"`
+				Name         string `xml:"name,attr"`
+				Friendlyname string `xml:"friendlyname,attr"`
+				Value        string `xml:"value,attr"`
+				Bayesaverage string `xml:"bayesaverage,attr"`
+			} `xml:"rank"`
+		} `xml:"ranks"`
+		Stddev struct {
+			Text  string `xml:",chardata"`
+			Value string `xml:"value,attr"`
+		} `xml:"stddev"`
+		Median struct {
+			Text  string `xml:",chardata"`
+			Value string `xml:"value,attr"`
+		} `xml:"median"`
+		Owned struct {
+			Text  string `xml:",chardata"`
+			Value string `xml:"value,attr"`
+		} `xml:"owned"`
+		Trading struct {
+			Text  string `xml:",chardata"`
+			Value string `xml:"value,attr"`
+		} `xml:"trading"`
+		Wanting struct {
+			Text  string `xml:",chardata"`
+			Value string `xml:"value,attr"`
+		} `xml:"wanting"`
+		Wishing struct {
+			Text  string `xml:",chardata"`
+			Value string `xml:"value,attr"`
+		} `xml:"wishing"`
+		Numcomments struct {
+			Text  string `xml:",chardata"`
+			Value string `xml:"value,attr"`
+		} `xml:"numcomments"`
+		Numweights struct {
+			Text  string `xml:",chardata"`
+			Value string `xml:"value,attr"`
+		} `xml:"numweights"`
+		Averageweight struct {
+			Text  string `xml:",chardata"`
+			Value string `xml:"value,attr"`
+		} `xml:"averageweight"`
+	} `xml:"ratings"`
+}
+
 type Poll struct {
+}
+
+// PollItem is a single poll  item in a poll
+type PollItem struct {
 	Name       string
 	Title      string
 	TotalVotes int
@@ -165,6 +236,15 @@ func safeInt(str string) int64 {
 	}
 
 	i64, _ := strconv.ParseInt(str, 10, 0)
+	return i64
+}
+
+func safeFloat64(str string) float64 {
+	if str == "" {
+		return 0
+	}
+
+	i64, _ := strconv.ParseFloat(str, 64)
 	return i64
 }
 

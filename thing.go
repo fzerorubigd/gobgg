@@ -108,6 +108,7 @@ type thingItems struct {
 				} `xml:"link"`
 			} `xml:"listing"`
 		} `xml:"marketplacelistings"`
+		Statistics Statistics `xml:"statistics"`
 	} `xml:"item"`
 }
 
@@ -126,6 +127,13 @@ func GetThingIDs(ids ...int64) GetOptionSetter {
 			opt.ids = append(opt.ids, fmt.Sprint(ids[i]))
 		}
 	}
+}
+
+type FamilyRank struct {
+	ID                 int64
+	Name, FriendlyName string
+	Rank               int
+	BayesAverage       float64
 }
 
 // ThingResult is the result for the thing api
@@ -152,6 +160,21 @@ type ThingResult struct {
 	Description string
 
 	Links map[string][]Link
+
+	UsersRated   int
+	AverageRate  float64
+	BayesAverage float64
+
+	UsersOwned    int
+	UsersTrading  int
+	UsersWanting  int
+	UsersWishing  int
+	NumComments   int
+	NumWeight     int
+	AverageWeight float64
+
+	RankTotal int
+	Family    map[string]FamilyRank
 }
 
 // GetThings is the get things API entry point
@@ -163,7 +186,8 @@ func (bgg *BGG) GetThings(ctx context.Context, setters ...GetOptionSetter) ([]Th
 	}
 
 	args := map[string]string{
-		"id": strings.Join(opt.ids, ","),
+		"id":    strings.Join(opt.ids, ","),
+		"stats": "1",
 	}
 
 	u := bgg.buildURL(thingPath, args)
@@ -197,6 +221,34 @@ func (bgg *BGG) GetThings(ctx context.Context, setters ...GetOptionSetter) ([]Th
 			PlayTime:      result.Item[i].Playingtime.Value,
 			MinPlayTime:   result.Item[i].Minplaytime.Value,
 			MaxPlayTime:   result.Item[i].Maxplaytime.Value,
+			UsersRated:    int(safeInt(result.Item[i].Statistics.Ratings.Usersrated.Value)),
+			AverageRate:   safeFloat64(result.Item[i].Statistics.Ratings.Average.Value),
+			BayesAverage:  safeFloat64(result.Item[i].Statistics.Ratings.Bayesaverage.Value),
+			UsersOwned:    int(safeInt(result.Item[i].Statistics.Ratings.Owned.Value)),
+			UsersTrading:  int(safeInt(result.Item[i].Statistics.Ratings.Trading.Value)),
+			UsersWanting:  int(safeInt(result.Item[i].Statistics.Ratings.Wanting.Value)),
+			UsersWishing:  int(safeInt(result.Item[i].Statistics.Ratings.Wishing.Value)),
+			NumComments:   int(safeInt(result.Item[i].Statistics.Ratings.Numcomments.Value)),
+			NumWeight:     int(safeInt(result.Item[i].Statistics.Ratings.Numweights.Value)),
+			AverageWeight: safeFloat64(result.Item[i].Statistics.Ratings.Averageweight.Value),
+			Family:        make(map[string]FamilyRank),
+		}
+
+		for _, r := range result.Item[i].Statistics.Ratings.Ranks.Rank {
+			if r.Type == "subtype" && r.Name == "boardgame" {
+				ret[i].RankTotal = int(safeInt(r.Value))
+				continue
+			}
+
+			if r.Type == "family" {
+				ret[i].Family[r.Name] = FamilyRank{
+					ID:           safeInt(r.ID),
+					Name:         r.Name,
+					FriendlyName: r.Friendlyname,
+					Rank:         int(safeInt(r.Value)),
+					BayesAverage: safeFloat64(r.Bayesaverage),
+				}
+			}
 		}
 
 		ret[i].Name, ret[i].AlternateNames = nameStructToString(result.Item[i].Name)
