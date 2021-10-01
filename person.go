@@ -32,7 +32,7 @@ type PersonImage struct {
 }
 
 func (bgg *BGG) PersonImage(ctx context.Context, id int64) (*PersonImage, error) {
-	u := bgg.buildURL(playsPath, map[string]string{
+	u := bgg.buildURL(personsPath, map[string]string{
 		"id": fmt.Sprint(id),
 	})
 
