@@ -154,47 +154,47 @@ type LinkStruct struct {
 
 // Link is the link
 type Link struct {
-	ID   int64
-	Name string
+	ID   int64 `json:"id,omitempty"`
+	Name string `json:"name,omitempty"`
 }
 
 type Plays struct {
-	Total    int64
-	Page     int64
-	UserName string
-	UserID   int64
-	Items    []Play
+	Total    int64  `json:"total,omitempty"`
+	Page     int64  `json:"page,omitempty"`
+	UserName string `json:"user_name,omitempty"`
+	UserID   int64  `json:"user_id,omitempty"`
+	Items    []Play `json:"items,omitempty"`
 }
 
 type Play struct {
-	ID         int64
-	Date       time.Time
-	Quantity   int64
-	Length     time.Duration
-	Incomplete bool
-	NowInStats bool
-	Location   string
-	Comment    string
-	Item       Item
-	Players    []Player
+	ID         int64         `json:"id,omitempty"`
+	Date       time.Time     `json:"date,omitempty"`
+	Quantity   int64         `json:"quantity,omitempty"`
+	Length     time.Duration `json:"length,omitempty"`
+	Incomplete bool          `json:"incomplete,omitempty"`
+	NowInStats bool          `json:"now_in_stats,omitempty"`
+	Location   string        `json:"location,omitempty"`
+	Comment    string        `json:"comment,omitempty"`
+	Item       Item          `json:"item,omitempty"`
+	Players    []Player      `json:"players,omitempty"`
 }
 
 type Item struct {
-	Name string
-	Type ItemType
-	ID   int64
+	Name string   `json:"name,omitempty"`
+	Type ItemType `json:"type,omitempty"`
+	ID   int64    `json:"id,omitempty"`
 }
 
 type Player struct {
-	UserName      string
-	UserID        string
-	Name          string
-	StartPosition string
-	Color         string
-	Score         int64
-	New           bool
-	Rating        string
-	Win           bool
+	UserName      string `json:"user_name,omitempty"`
+	UserID        string `json:"user_id,omitempty"`
+	Name          string `json:"name,omitempty"`
+	StartPosition string `json:"start_position,omitempty"`
+	Color         string `json:"color,omitempty"`
+	Score         int64  `json:"score,omitempty"`
+	New           bool   `json:"new,omitempty"`
+	Rating        string `json:"rating,omitempty"`
+	Win           bool   `json:"win,omitempty"`
 }
 
 func nameStructToString(args []NameStruct) (string, []string) {

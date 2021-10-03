@@ -61,7 +61,7 @@ type playsResponse struct {
 	} `xml:"play"`
 }
 
-// SearchOption is used to handle func option ins earch api
+// PlaysOption is used to handle func option ins plays api
 type PlaysOption struct {
 	userName         string
 	gameID           int

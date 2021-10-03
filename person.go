@@ -26,9 +26,9 @@ type personItem struct {
 
 // PersonImage is the persons image and thumbnail
 type PersonImage struct {
-	ID        int64
-	Thumbnail string
-	Image     string
+	ID        int64  `json:"id,omitempty"`
+	Thumbnail string `json:"thumbnail,omitempty"`
+	Image     string `json:"image,omitempty"`
 }
 
 func (bgg *BGG) PersonImage(ctx context.Context, id int64) (*PersonImage, error) {

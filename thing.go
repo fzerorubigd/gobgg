@@ -3,6 +3,7 @@ package gobgg
 import (
 	"context"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"html"
 	"net/http"
@@ -130,51 +131,51 @@ func GetThingIDs(ids ...int64) GetOptionSetter {
 }
 
 type FamilyRank struct {
-	ID                 int64
-	Name, FriendlyName string
-	Rank               int
-	BayesAverage       float64
+	ID           int64   `json:"id,omitempty"`
+	Name         string  `json:"name,omitempty"`
+	FriendlyName string  `json:"friendly_name,omitempty"`
+	Rank         int     `json:"rank,omitempty"`
+	BayesAverage float64 `json:"bayes_average,omitempty"`
 }
 
 // ThingResult is the result for the thing api
 type ThingResult struct {
-	ID             int64
-	Name           string
-	AlternateNames []string
-	Type           ItemType
-	YearPublished  int
+	ID             int64    `json:"id,omitempty"`
+	Name           string   `json:"name,omitempty"`
+	AlternateNames []string `json:"alternate_names,omitempty"`
+	Type           ItemType `json:"type,omitempty"`
+	YearPublished  int      `json:"year_published,omitempty"`
 
-	Thumbnail string
-	Image     string
-
-	MinPlayers int
-	MaxPlayers int
+	Thumbnail  string `json:"thumbnail,omitempty"`
+	Image      string `json:"image,omitempty"`
+	MinPlayers int    `json:"min_players,omitempty"`
+	MaxPlayers int    `json:"max_players,omitempty"`
 
 	// TODO: int?
-	MinAge string
+	MinAge string `json:"min_age,omitempty"`
 
-	PlayTime    string
-	MinPlayTime string
-	MaxPlayTime string
+	PlayTime    string `json:"play_time,omitempty"`
+	MinPlayTime string `json:"min_play_time,omitempty"`
+	MaxPlayTime string `json:"max_play_time,omitempty"`
 
-	Description string
+	Description string `json:"description,omitempty"`
 
-	Links map[string][]Link
+	Links map[string][]Link `json:"links,omitempty"`
 
-	UsersRated   int
-	AverageRate  float64
-	BayesAverage float64
+	UsersRated   int     `json:"users_rated,omitempty"`
+	AverageRate  float64 `json:"average_rate,omitempty"`
+	BayesAverage float64 `json:"bayes_average,omitempty"`
 
-	UsersOwned    int
-	UsersTrading  int
-	UsersWanting  int
-	UsersWishing  int
-	NumComments   int
-	NumWeight     int
-	AverageWeight float64
+	UsersOwned    int     `json:"users_owned,omitempty"`
+	UsersTrading  int     `json:"users_trading,omitempty"`
+	UsersWanting  int     `json:"users_wanting,omitempty"`
+	UsersWishing  int     `json:"users_wishing,omitempty"`
+	NumComments   int     `json:"num_comments,omitempty"`
+	NumWeight     int     `json:"num_weight,omitempty"`
+	AverageWeight float64 `json:"average_weight,omitempty"`
 
-	RankTotal int
-	Family    map[string]FamilyRank
+	RankTotal int                   `json:"rank_total,omitempty"`
+	Family    map[string]FamilyRank `json:"family,omitempty"`
 }
 
 // GetThings is the get things API entry point
@@ -183,6 +184,10 @@ func (bgg *BGG) GetThings(ctx context.Context, setters ...GetOptionSetter) ([]Th
 
 	for i := range setters {
 		setters[i](&opt)
+	}
+
+	if len(opt.ids) == 0 {
+		return nil, errors.New("at least one id is required")
 	}
 
 	args := map[string]string{

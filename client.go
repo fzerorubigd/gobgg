@@ -15,7 +15,12 @@ type BGG struct {
 	cookies []*http.Cookie
 }
 
-func (bgg BGG) buildURL(path string, args map[string]string) string {
+// GetCookies return the cookies if the cookies are available
+func (bgg *BGG) GetCookies() []*http.Cookie {
+	return bgg.cookies
+}
+
+func (bgg *BGG) buildURL(path string, args map[string]string) string {
 	u := url.URL{
 		Scheme: bgg.scheme,
 		Host:   bgg.host,

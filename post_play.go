@@ -44,7 +44,7 @@ type createPlayPayload struct {
 	Action         string         `json:"action"`
 }
 
-func (bgg *BGG) PostPlay(ctx context.Context, play Play) error {
+func (bgg *BGG) PostPlay(ctx context.Context, play *Play) error {
 	if len(bgg.cookies) == 0 {
 		return fmt.Errorf("call login first")
 	}
