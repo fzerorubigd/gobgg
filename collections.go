@@ -44,6 +44,21 @@ const (
 	CollectionTypeWantParts CollectionType = "wantparts"
 )
 
+type collectionStatus struct {
+	Text             string `xml:",chardata"`
+	Own              int    `xml:"own,attr"`
+	Prevowned        int    `xml:"prevowned,attr"`
+	Fortrade         int    `xml:"fortrade,attr"`
+	Want             int    `xml:"want,attr"`
+	Wanttoplay       int    `xml:"wanttoplay,attr"`
+	Wanttotrade      int    `xml:"wanttotrade,attr"`
+	Wanttobuy        int    `xml:"wanttobuy,attr"`
+	Wishlist         int    `xml:"wishlist,attr"`
+	Preordered       int    `xml:"preordered,attr"`
+	Lastmodified     string `xml:"lastmodified,attr"`
+	Wishlistpriority int    `xml:"wishlistpriority,attr"`
+}
+
 type collectionItems struct {
 	XMLName    xml.Name `xml:"items"`
 	Text       string   `xml:",chardata"`
@@ -93,22 +108,10 @@ type collectionItems struct {
 				} `xml:"ranks"`
 			} `xml:"rating"`
 		} `xml:"stats"`
-		Status struct {
-			Text             string `xml:",chardata"`
-			Own              int    `xml:"own,attr"`
-			Prevowned        int    `xml:"prevowned,attr"`
-			Fortrade         int    `xml:"fortrade,attr"`
-			Want             int    `xml:"want,attr"`
-			Wanttoplay       int    `xml:"wanttoplay,attr"`
-			Wanttobuy        int    `xml:"wanttobuy,attr"`
-			Wishlist         int    `xml:"wishlist,attr"`
-			Preordered       int    `xml:"preordered,attr"`
-			Lastmodified     string `xml:"lastmodified,attr"`
-			Wishlistpriority int    `xml:"wishlistpriority,attr"`
-		} `xml:"status"`
-		Numplays        int    `xml:"numplays"`
-		Comment         string `xml:"comment"`
-		Wishlistcomment string `xml:"wishlistcomment"`
+		Status          collectionStatus `xml:"status"`
+		Numplays        int              `xml:"numplays"`
+		Comment         string           `xml:"comment"`
+		Wishlistcomment string           `xml:"wishlistcomment"`
 		Version         struct {
 			Text string `xml:",chardata"`
 			Item struct {
@@ -289,8 +292,43 @@ func SetMaxPlays(plays int) CollectionOptionSetter {
 	}
 }
 
+func statusToStringArray(status *collectionStatus) []string {
+	var result []string
+	if status.Own != 0 {
+		result = append(result, "owned")
+	}
+	if status.Want != 0 {
+		result = append(result, "want")
+	}
+	if status.Wanttobuy != 0 {
+		result = append(result, "wanttobuy")
+	}
+	if status.Wanttoplay != 0 {
+		result = append(result, "wanttoplay")
+	}
+	if status.Wanttotrade != 0 {
+		result = append(result, "wanttotrade")
+	}
+	if status.Wishlist != 0 {
+		result = append(result, "wishlist")
+	}
+	if status.Wishlistpriority != 0 {
+		result = append(result, "wishlistpriority")
+	}
+	if status.Preordered != 0 {
+		result = append(result, "preordered")
+	}
+	if status.Prevowned != 0 {
+		result = append(result, "previouslyowned")
+	}
+	if status.Fortrade != 0 {
+		result = append(result, "fortrade")
+	}
+	return result
+}
+
 // GetCollection is to get the collections of a user
-func (bgg *BGG) GetCollection(ctx context.Context, username string, options ...CollectionOptionSetter) ([]ThingResult, error) {
+func (bgg *BGG) GetCollection(ctx context.Context, username string, options ...CollectionOptionSetter) ([]CollectionItem, error) {
 	opt := GetCollectionOptions{}
 
 	for i := range options {
@@ -347,18 +385,18 @@ func (bgg *BGG) GetCollection(ctx context.Context, username string, options ...C
 		return nil, fmt.Errorf("XML decoding failed: %w", err)
 	}
 
-	ret := make([]ThingResult, len(result.Item))
+	ret := make([]CollectionItem, len(result.Item))
 	for i := range result.Item {
-		ret[i] = ThingResult{
-			ID:            result.Item[i].Objectid,
-			Type:          ItemType(result.Item[i].Objecttype),
-			YearPublished: int(safeInt(result.Item[i].Yearpublished)),
-			Description:   strings.Trim(html.UnescapeString(result.Item[i].Text), "\n\t "),
-			Thumbnail:     result.Item[i].Thumbnail,
-			Image:         result.Item[i].Image,
+		ret[i] = CollectionItem{
+			ID:               result.Item[i].Objectid,
+			Name:             result.Item[i].Name.Text,
+			Description:      strings.Trim(html.UnescapeString(result.Item[i].Text), "\n\t "),
+			Type:             ItemType(result.Item[i].Objecttype),
+			YearPublished:    int(safeInt(result.Item[i].Yearpublished)),
+			Thumbnail:        result.Item[i].Thumbnail,
+			Image:            result.Item[i].Image,
+			CollectionStatus: statusToStringArray(&result.Item[i].Status),
 		}
-
-		ret[i].Name = result.Item[i].Name.Text
 	}
 	return ret, nil
 }

@@ -138,6 +138,19 @@ type FamilyRank struct {
 	BayesAverage float64 `json:"bayes_average,omitempty"`
 }
 
+// CollectionItem is the item in collection
+type CollectionItem struct {
+	ID            int64    `json:"id,omitempty"`
+	Name          string   `json:"name,omitempty"`
+	Description   string   `json:"description,omitempty"`
+	Type          ItemType `json:"type,omitempty"`
+	YearPublished int      `json:"year_published,omitempty"`
+	Thumbnail     string   `json:"thumbnail,omitempty"`
+	Image         string   `json:"image,omitempty"`
+
+	CollectionStatus []string `json:"collection_status,omitempty"`
+}
+
 // ThingResult is the result for the thing api
 type ThingResult struct {
 	ID             int64    `json:"id,omitempty"`
