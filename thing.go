@@ -141,6 +141,7 @@ type FamilyRank struct {
 // CollectionItem is the item in collection
 type CollectionItem struct {
 	ID            int64    `json:"id,omitempty"`
+	CollID        int64    `json:"coll_id"`
 	Name          string   `json:"name,omitempty"`
 	Description   string   `json:"description,omitempty"`
 	Type          ItemType `json:"type,omitempty"`

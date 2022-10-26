@@ -42,7 +42,11 @@ func (bgg *BGG) Login(ctx context.Context, username, password string) error {
 		return fmt.Errorf("maybe, invalid username/password")
 	}
 
+	bgg.lock.Lock()
+	defer bgg.lock.Unlock()
+
 	bgg.cookies = resp.Cookies()
+	bgg.username = username
 
 	return nil
 }

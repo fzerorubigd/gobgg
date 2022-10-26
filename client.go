@@ -3,6 +3,7 @@ package gobgg
 import (
 	"net/http"
 	"net/url"
+	"sync"
 )
 
 // BGG is the client for the boardgame geek site
@@ -12,12 +13,35 @@ type BGG struct {
 	client *http.Client
 
 	// I prefer not to use the cookie jar since this is simpler
-	cookies []*http.Cookie
+	cookies  []*http.Cookie
+	username string
+
+	lock sync.RWMutex
 }
 
-// GetCookies return the cookies if the cookies are available
-func (bgg *BGG) GetCookies() []*http.Cookie {
+// GetActiveCookies return the cookies if the cookies are available
+func (bgg *BGG) GetActiveCookies() []*http.Cookie {
+	bgg.lock.RLock()
+	defer bgg.lock.RUnlock()
+
 	return bgg.cookies
+}
+
+// GetActiveUsername return the username that the current cookie are based on
+func (bgg *BGG) GetActiveUsername() string {
+	bgg.lock.RLock()
+	defer bgg.lock.RUnlock()
+
+	return bgg.username
+}
+
+func (bgg *BGG) requestCookies(req *http.Request) {
+	bgg.lock.RLock()
+	defer bgg.lock.RUnlock()
+	// If there is a cookie
+	for i := range bgg.cookies {
+		req.AddCookie(bgg.cookies[i])
+	}
 }
 
 func (bgg *BGG) buildURL(path string, args map[string]string) string {
@@ -36,7 +60,7 @@ func (bgg *BGG) buildURL(path string, args map[string]string) string {
 	return u.String()
 }
 
-// OptionSetter lets you to modify the internal settings
+// OptionSetter modify the internal settings
 type OptionSetter func(*BGG)
 
 // SetClient allows you to modify the default client
@@ -61,9 +85,10 @@ func SetSchema(schema string) OptionSetter {
 }
 
 // SetCookies set the cookies for this object, in case the user is logged in already
-func SetCookies(c []*http.Cookie) OptionSetter {
+func SetCookies(username string, c []*http.Cookie) OptionSetter {
 	return func(bgg *BGG) {
 		bgg.cookies = c
+		bgg.username = username
 	}
 }
 
@@ -73,6 +98,7 @@ func NewBGGClient(opt ...OptionSetter) *BGG {
 		host:   "boardgamegeek.com",
 		scheme: "https",
 		client: &http.Client{},
+		lock:   sync.RWMutex{},
 	}
 
 	for i := range opt {

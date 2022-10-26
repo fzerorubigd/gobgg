@@ -4,7 +4,6 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"strconv"
 	"time"
@@ -154,7 +153,7 @@ type LinkStruct struct {
 
 // Link is the link
 type Link struct {
-	ID   int64 `json:"id,omitempty"`
+	ID   int64  `json:"id,omitempty"`
 	Name string `json:"name,omitempty"`
 }
 
@@ -264,7 +263,7 @@ type bggError struct {
 }
 
 func decode(r io.Reader, in interface{}) error {
-	buf, err := ioutil.ReadAll(r)
+	buf, err := io.ReadAll(r)
 	if err != nil {
 		return fmt.Errorf("error reading data: %w", err)
 	}

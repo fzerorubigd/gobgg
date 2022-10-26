@@ -2,10 +2,11 @@ package main
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/csv"
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -29,12 +30,31 @@ var allType = []gobgg.CollectionType{
 	gobgg.CollectionTypeWantParts,
 }
 
+func getTheUrl(ctx context.Context, id int64) string {
+	result := fmt.Sprintf("https://boardgamegeek.com/boardgame/%d", id)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, result, nil)
+	if err != nil {
+		return result
+	}
+	resp, err := http.DefaultTransport.RoundTrip(req)
+	if err != nil {
+		return result
+	}
+	r := resp.Header.Get("Location")
+	if r != "" {
+		result = "https://boardgamegeek.com" + r
+	}
+
+	return result
+}
+
 func main() {
 	var (
 		username string
 		items    = map[gobgg.CollectionType]*bool{}
 	)
-	flag.StringVar(&username, "username", "", "the username")
+	flag.StringVar(&username, "username", "fzerorubigd", "the username")
 	for _, ct := range allType {
 		items[ct] = flag.Bool(string(ct), false, fmt.Sprintf("Include %q items", ct))
 	}
@@ -65,7 +85,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	enc := json.NewEncoder(os.Stdout)
-	enc.SetIndent("", "  ")
-	_ = enc.Encode(p)
+	wcsv := csv.NewWriter(os.Stdout)
+	defer wcsv.Flush()
+	for i := range p {
+		rec := []string{
+			p[i].Name,
+			fmt.Sprint(p[i].ID),
+			getTheUrl(ctx, p[i].ID),
+		}
+
+		wcsv.Write(rec)
+	}
 }

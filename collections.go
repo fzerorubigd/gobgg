@@ -70,7 +70,7 @@ type collectionItems struct {
 		Objecttype string `xml:"objecttype,attr"`
 		Objectid   int64  `xml:"objectid,attr"`
 		Subtype    string `xml:"subtype,attr"`
-		Collid     string `xml:"collid,attr"`
+		Collid     int64  `xml:"collid,attr"`
 		Name       struct {
 			Text      string `xml:",chardata"`
 			Sortindex string `xml:"sortindex,attr"`
@@ -149,7 +149,8 @@ type GetCollectionOptions struct {
 	minplays     int
 	maxplays     int
 	//showprivate   bool
-	//collid        int
+	ids           []int64
+	collID        int64
 	modifiedsince *time.Time
 }
 
@@ -199,11 +200,37 @@ func (c *GetCollectionOptions) toMap() map[string]string {
 		result["maxplays"] = fmt.Sprint(c.maxplays)
 	}
 
+	if len(c.ids) > 0 {
+		st := make([]string, 0, len(c.ids))
+		for i := range c.ids {
+			if c.ids[i] > 0 {
+				st = append(st, fmt.Sprint(c.ids[i]))
+			}
+		}
+		result["id"] = strings.Join(st, ",")
+	}
+
+	if c.collID > 0 {
+		result["collid"] = fmt.Sprint(c.collID)
+	}
+
 	return result
 }
 
 // CollectionOptionSetter is the option setter for the get collection
 type CollectionOptionSetter func(*GetCollectionOptions)
+
+func SetIDs(ids ...int64) CollectionOptionSetter {
+	return func(options *GetCollectionOptions) {
+		options.ids = ids
+	}
+}
+
+func SetCollID(collID int64) CollectionOptionSetter {
+	return func(options *GetCollectionOptions) {
+		options.collID = collID
+	}
+}
 
 // SetVersion Returns version info for each item in your collection.
 func SetVersion(version bool) CollectionOptionSetter {
@@ -344,10 +371,7 @@ func (bgg *BGG) GetCollection(ctx context.Context, username string, options ...C
 		return nil, fmt.Errorf("create request failed: %w", err)
 	}
 
-	// If there is a cookie
-	for i := range bgg.cookies {
-		req.AddCookie(bgg.cookies[i])
-	}
+	bgg.requestCookies(req)
 
 	var (
 		resp  *http.Response
@@ -389,6 +413,7 @@ func (bgg *BGG) GetCollection(ctx context.Context, username string, options ...C
 	for i := range result.Item {
 		ret[i] = CollectionItem{
 			ID:               result.Item[i].Objectid,
+			CollID:           result.Item[i].Collid,
 			Name:             result.Item[i].Name.Text,
 			Description:      strings.Trim(html.UnescapeString(result.Item[i].Text), "\n\t "),
 			Type:             ItemType(result.Item[i].Objecttype),

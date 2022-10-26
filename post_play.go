@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/http/httputil"
 	"time"
 )
 
@@ -45,7 +44,7 @@ type createPlayPayload struct {
 }
 
 func (bgg *BGG) PostPlay(ctx context.Context, play *Play) error {
-	if len(bgg.cookies) == 0 {
+	if len(bgg.GetActiveCookies()) == 0 {
 		return fmt.Errorf("call login first")
 	}
 	payload := createPlayPayload{
@@ -93,17 +92,13 @@ func (bgg *BGG) PostPlay(ctx context.Context, play *Play) error {
 	}
 
 	req.Header.Add("content-type", "application/json")
-	for i := range bgg.cookies {
-		req.AddCookie(bgg.cookies[i])
-	}
+	bgg.requestCookies(req)
+
 	resp, err := bgg.client.Do(req)
 	if err != nil {
 		return fmt.Errorf("http call failed: %w", err)
 	}
 	defer resp.Body.Close()
-
-	d, _ := httputil.DumpResponse(resp, true)
-	fmt.Println(string(d))
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return fmt.Errorf("failed with status code")
