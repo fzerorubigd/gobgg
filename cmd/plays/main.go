@@ -1,11 +1,12 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"os"
-
-	"github.com/fzerorubigd/clictx"
+	"os/signal"
+	"syscall"
 
 	"github.com/fzerorubigd/gobgg"
 )
@@ -14,7 +15,12 @@ func main() {
 	var username string
 	flag.StringVar(&username, "username", "", "the username")
 
-	ctx := clictx.DefaultContext()
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGKILL,
+		syscall.SIGINT,
+		syscall.SIGTERM,
+		syscall.SIGQUIT,
+		syscall.SIGABRT)
+	defer cancel()
 	bgg := gobgg.NewBGGClient()
 
 	var plays []gobgg.Play

@@ -1,13 +1,14 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/go-acme/lego/log"
+	"log"
 	"os"
-
-	"github.com/fzerorubigd/clictx"
+	"os/signal"
+	"syscall"
 
 	"github.com/fzerorubigd/gobgg"
 )
@@ -38,7 +39,13 @@ func main() {
 		items[ct] = flag.Bool(string(ct), false, fmt.Sprintf("Include %q items", ct))
 	}
 
-	ctx := clictx.DefaultContext()
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGKILL,
+		syscall.SIGINT,
+		syscall.SIGTERM,
+		syscall.SIGQUIT,
+		syscall.SIGABRT)
+	defer cancel()
+
 	bgg := gobgg.NewBGGClient()
 
 	var opt []gobgg.CollectionType
