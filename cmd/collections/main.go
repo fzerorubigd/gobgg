@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"github.com/fzerorubigd/gobgg"
@@ -92,6 +93,7 @@ func main() {
 			p[i].Name,
 			fmt.Sprint(p[i].ID),
 			getTheUrl(ctx, p[i].ID),
+			strings.Join(p[i].CollectionStatus, ","),
 		}
 
 		wcsv.Write(rec)
