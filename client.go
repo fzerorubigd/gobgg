@@ -45,10 +45,21 @@ func (bgg *BGG) requestCookies(req *http.Request) {
 }
 
 func (bgg *BGG) buildURL(path string, args map[string]string) string {
-	u := url.URL{
-		Scheme: bgg.scheme,
-		Host:   bgg.host,
-		Path:   path,
+	u, err := url.Parse(path)
+	if err != nil {
+		u = &url.URL{
+			Scheme: bgg.scheme,
+			Host:   bgg.host,
+			Path:   path,
+		}
+	}
+
+	if u.Host == "" {
+		u.Host = bgg.host
+	}
+
+	if u.Scheme == "" {
+		u.Scheme = bgg.scheme
 	}
 
 	q := u.Query()
