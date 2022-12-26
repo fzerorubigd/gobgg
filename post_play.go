@@ -45,7 +45,7 @@ type createPlayPayload struct {
 
 func (bgg *BGG) PostPlay(ctx context.Context, play *Play) error {
 	if len(bgg.GetActiveCookies()) == 0 {
-		return fmt.Errorf("call login first")
+		return fmt.Errorf("call realrank first")
 	}
 	payload := createPlayPayload{
 		Playdate:   play.Date.Format(bggTimeFormat),

@@ -6,7 +6,10 @@ import (
 	"io"
 	"log"
 	"strconv"
+	"strings"
 	"time"
+
+	"golang.org/x/net/html"
 )
 
 // ItemType is the item type for the search api
@@ -238,6 +241,21 @@ func safeInt(str string) int64 {
 	return i64
 }
 
+func safeIntInterface(in interface{}) int64 {
+	switch t := in.(type) {
+	case string:
+		return safeInt(t)
+	case int64:
+		return t
+	case int:
+		return int64(t)
+	case byte:
+		return int64(t)
+	default:
+		return 0
+	}
+}
+
 func safeFloat64(str string) float64 {
 	if str == "" {
 		return 0
@@ -278,4 +296,31 @@ func decode(r io.Reader, in interface{}) error {
 	}
 
 	return fmt.Errorf("error from bgg: %q", errType.Message)
+}
+
+func getAttr(attr []html.Attribute, key string) string {
+	for i := range attr {
+		if attr[i].Key == key {
+			return attr[i].Val
+		}
+	}
+
+	return ""
+}
+
+func getID(url string, typ string) int64 {
+	data := strings.SplitN(strings.Trim(url, "/"), "/", 3)
+	if len(data) != 3 {
+		return -1
+	}
+	if data[0] != typ {
+		return -1
+	}
+
+	s, err := strconv.ParseInt(data[1], 10, 0)
+	if err != nil {
+		return -1
+	}
+
+	return s
 }

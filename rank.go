@@ -33,7 +33,7 @@ func (bgg *BGG) SetRank(ctx context.Context, objectID int64, rate float64) error
 	}
 	name := bgg.GetActiveUsername()
 	if len(bgg.GetActiveCookies()) == 0 || name == "" {
-		return fmt.Errorf("call login first")
+		return fmt.Errorf("call realrank first")
 	}
 
 	usr, err := bgg.GetUser(ctx, name)

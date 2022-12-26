@@ -2,16 +2,19 @@ package gobgg
 
 import (
 	"context"
+	"encoding/json"
 	"encoding/xml"
 	"errors"
 	"fmt"
 	"html"
+	"io"
 	"net/http"
 	"strings"
 )
 
 const (
 	thingPath = "xmlapi2/thing"
+	rankPath  = "api/collectionstatsgraph"
 )
 
 type thingItems struct {
@@ -275,4 +278,97 @@ func (bgg *BGG) GetThings(ctx context.Context, setters ...GetOptionSetter) ([]Th
 	}
 
 	return ret, nil
+}
+
+// RankBreakDown shows the rank break down in BGG website
+type RankBreakDown [10]int64
+
+func (rb RankBreakDown) Total() int64 {
+	var total int64
+	for i := range rb {
+		total += rb[i]
+	}
+
+	return total
+}
+func (rb RankBreakDown) Average() float64 {
+	var (
+		total int64
+		av    float64
+	)
+	for i := range rb {
+		total += rb[i]
+		av += float64(int64(i+1) * rb[i])
+	}
+
+	return av / float64(total)
+}
+
+func (rb RankBreakDown) BayesianAverage(added int64) float64 {
+	m := float64(added) * 5.5
+	total := added
+	for i := range rb {
+		m += float64(i+1) * float64(rb[i])
+		total += rb[i]
+	}
+
+	return m / float64(total)
+}
+
+type rankBreakDownResponse struct {
+	Type       string                 `json:"type"`
+	Options    map[string]interface{} `json:"options"`
+	Formatters []interface{}          `json:"formatters"`
+	Data       struct {
+		Cols []interface{} `json:"cols"`
+		Rows []struct {
+			C []struct {
+				V interface{} `json:"v"`
+				F interface{} `json:"f"`
+			} `json:"c"`
+		} `json:"rows"`
+	} `json:"data"`
+}
+
+func (bgg *BGG) GetRankBreakDown(ctx context.Context, gameID int64) (RankBreakDown, error) {
+	args := map[string]string{
+		"objectid":   fmt.Sprint(gameID),
+		"objecttype": "thing",
+		"type":       "BarChart",
+	}
+	rbd := RankBreakDown{}
+	u := bgg.buildURL(rankPath, args)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
+	if err != nil {
+		return rbd, fmt.Errorf("create request failed: %w", err)
+	}
+
+	resp, err := bgg.client.Do(req)
+	if err != nil {
+		return rbd, fmt.Errorf("http call failed: %w", err)
+	}
+	defer resp.Body.Close()
+	var result rankBreakDownResponse
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return rbd, fmt.Errorf("read data failed: %w", err)
+	}
+
+	if err = json.Unmarshal(data, &result); err != nil {
+		return rbd, fmt.Errorf("JSON decoding failed: %w", err)
+	}
+
+	for _, row := range result.Data.Rows {
+		if len(row.C) < 2 {
+			return rbd, fmt.Errorf("[RESPONSE] invalid row data")
+		}
+
+		num := safeIntInterface(row.C[0].V)
+		val := safeIntInterface(row.C[1].V)
+		if num <= 10 && num > 0 {
+			rbd[num-1] = val
+		}
+	}
+
+	return rbd, nil
 }

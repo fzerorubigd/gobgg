@@ -96,6 +96,6 @@ func main() {
 			strings.Join(p[i].CollectionStatus, ","),
 		}
 
-		wcsv.Write(rec)
+		_ = wcsv.Write(rec)
 	}
 }
