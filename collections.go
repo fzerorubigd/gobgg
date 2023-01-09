@@ -319,7 +319,7 @@ func SetMaxPlays(plays int) CollectionOptionSetter {
 	}
 }
 
-func statusToStringArray(status *collectionStatus) []string {
+func statusToStringArray(status *collectionStatus, played int) []string {
 	var result []string
 	if status.Own != 0 {
 		result = append(result, "owned")
@@ -350,6 +350,9 @@ func statusToStringArray(status *collectionStatus) []string {
 	}
 	if status.Fortrade != 0 {
 		result = append(result, "fortrade")
+	}
+	if played > 0 {
+		result = append(result, "played")
 	}
 	return result
 }
@@ -420,7 +423,7 @@ func (bgg *BGG) GetCollection(ctx context.Context, username string, options ...C
 			YearPublished:    int(safeInt(result.Item[i].Yearpublished)),
 			Thumbnail:        result.Item[i].Thumbnail,
 			Image:            result.Item[i].Image,
-			CollectionStatus: statusToStringArray(&result.Item[i].Status),
+			CollectionStatus: statusToStringArray(&result.Item[i].Status, result.Item[i].Numplays),
 		}
 	}
 	return ret, nil
