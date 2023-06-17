@@ -1,0 +1,15 @@
+name: Run Tests
+on: push
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+      - id: Run tests 
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.27.0
+          golangci-lint run
+          go test -race -coverprofile=coverage.txt -covermode=atomic ./...
+          bash <(curl -s https://codecov.io/bash)
