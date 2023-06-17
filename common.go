@@ -61,7 +61,7 @@ type PollStruct struct {
 		Result     []struct {
 			Text     string `xml:",chardata"`
 			Value    string `xml:"value,attr"`
-			Numvotes string `xml:"numvotes,attr"`
+			Numvotes int    `xml:"numvotes,attr"`
 			Level    string `xml:"level,attr"`
 		} `xml:"result"`
 	} `xml:"results"`

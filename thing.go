@@ -163,10 +163,13 @@ type ThingResult struct {
 	Type           ItemType `json:"type,omitempty"`
 	YearPublished  int      `json:"year_published,omitempty"`
 
-	Thumbnail  string `json:"thumbnail,omitempty"`
-	Image      string `json:"image,omitempty"`
-	MinPlayers int    `json:"min_players,omitempty"`
-	MaxPlayers int    `json:"max_players,omitempty"`
+	Thumbnail string `json:"thumbnail,omitempty"`
+	Image     string `json:"image,omitempty"`
+
+	MinPlayers int `json:"min_players,omitempty"`
+	MaxPlayers int `json:"max_players,omitempty"`
+
+	SuggestedPlayerCount []SuggestedPlayerCount
 
 	// TODO: int?
 	MinAge string `json:"min_age,omitempty"`
@@ -230,30 +233,35 @@ func (bgg *BGG) GetThings(ctx context.Context, setters ...GetOptionSetter) ([]Th
 
 	ret := make([]ThingResult, len(result.Item))
 	for i := range result.Item {
+		spc, err := getSuggestedPoll(result.Item[i].Poll)
+		if err != nil {
+			return nil, err
+		}
 		ret[i] = ThingResult{
-			ID:            result.Item[i].ID,
-			Type:          ItemType(result.Item[i].Type),
-			YearPublished: int(safeInt(result.Item[i].Yearpublished.Value)),
-			Description:   html.UnescapeString(result.Item[i].Description),
-			Thumbnail:     result.Item[i].Thumbnail,
-			Image:         result.Item[i].Image,
-			MinPlayers:    int(safeInt(result.Item[i].Minplayers.Value)),
-			MaxPlayers:    int(safeInt(result.Item[i].Maxplayers.Value)),
-			MinAge:        result.Item[i].Minage.Value,
-			PlayTime:      result.Item[i].Playingtime.Value,
-			MinPlayTime:   result.Item[i].Minplaytime.Value,
-			MaxPlayTime:   result.Item[i].Maxplaytime.Value,
-			UsersRated:    int(safeInt(result.Item[i].Statistics.Ratings.Usersrated.Value)),
-			AverageRate:   safeFloat64(result.Item[i].Statistics.Ratings.Average.Value),
-			BayesAverage:  safeFloat64(result.Item[i].Statistics.Ratings.Bayesaverage.Value),
-			UsersOwned:    int(safeInt(result.Item[i].Statistics.Ratings.Owned.Value)),
-			UsersTrading:  int(safeInt(result.Item[i].Statistics.Ratings.Trading.Value)),
-			UsersWanting:  int(safeInt(result.Item[i].Statistics.Ratings.Wanting.Value)),
-			UsersWishing:  int(safeInt(result.Item[i].Statistics.Ratings.Wishing.Value)),
-			NumComments:   int(safeInt(result.Item[i].Statistics.Ratings.Numcomments.Value)),
-			NumWeight:     int(safeInt(result.Item[i].Statistics.Ratings.Numweights.Value)),
-			AverageWeight: safeFloat64(result.Item[i].Statistics.Ratings.Averageweight.Value),
-			Family:        make(map[string]FamilyRank),
+			ID:                   result.Item[i].ID,
+			Type:                 ItemType(result.Item[i].Type),
+			YearPublished:        int(safeInt(result.Item[i].Yearpublished.Value)),
+			Description:          html.UnescapeString(result.Item[i].Description),
+			Thumbnail:            result.Item[i].Thumbnail,
+			Image:                result.Item[i].Image,
+			MinPlayers:           int(safeInt(result.Item[i].Minplayers.Value)),
+			MaxPlayers:           int(safeInt(result.Item[i].Maxplayers.Value)),
+			SuggestedPlayerCount: spc,
+			MinAge:               result.Item[i].Minage.Value,
+			PlayTime:             result.Item[i].Playingtime.Value,
+			MinPlayTime:          result.Item[i].Minplaytime.Value,
+			MaxPlayTime:          result.Item[i].Maxplaytime.Value,
+			UsersRated:           int(safeInt(result.Item[i].Statistics.Ratings.Usersrated.Value)),
+			AverageRate:          safeFloat64(result.Item[i].Statistics.Ratings.Average.Value),
+			BayesAverage:         safeFloat64(result.Item[i].Statistics.Ratings.Bayesaverage.Value),
+			UsersOwned:           int(safeInt(result.Item[i].Statistics.Ratings.Owned.Value)),
+			UsersTrading:         int(safeInt(result.Item[i].Statistics.Ratings.Trading.Value)),
+			UsersWanting:         int(safeInt(result.Item[i].Statistics.Ratings.Wanting.Value)),
+			UsersWishing:         int(safeInt(result.Item[i].Statistics.Ratings.Wishing.Value)),
+			NumComments:          int(safeInt(result.Item[i].Statistics.Ratings.Numcomments.Value)),
+			NumWeight:            int(safeInt(result.Item[i].Statistics.Ratings.Numweights.Value)),
+			AverageWeight:        safeFloat64(result.Item[i].Statistics.Ratings.Averageweight.Value),
+			Family:               make(map[string]FamilyRank),
 		}
 
 		for _, r := range result.Item[i].Statistics.Ratings.Ranks.Rank {

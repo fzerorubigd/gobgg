@@ -54,6 +54,13 @@ func thing(ctx context.Context, bgg *gobgg.BGG, args ...string) error {
 		} else {
 			fmt.Fprintf(os.Stdout, "Players count: %d\n", item.MinPlayers)
 		}
+		fmt.Fprintln(os.Stdout, "Suggested Player count (community votes): ")
+		for i := range item.SuggestedPlayerCount {
+			rec, num, per := item.SuggestedPlayerCount[i].Suggestion()
+			fmt.Fprintf(os.Stdout, "%s => %s, %d votes, %0.2f%%\n",
+				item.SuggestedPlayerCount[i].NumPlayers,
+				rec, num, per)
+		}
 		if names && len(item.AlternateNames) > 0 {
 			fmt.Fprintf(os.Stdout, "Alternate names: %s\n\n", strings.Join(item.AlternateNames, ", "))
 		}
