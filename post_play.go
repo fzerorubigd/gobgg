@@ -94,7 +94,7 @@ func (bgg *BGG) PostPlay(ctx context.Context, play *Play) error {
 	req.Header.Add("content-type", "application/json")
 	bgg.requestCookies(req)
 
-	resp, err := bgg.client.Do(req)
+	resp, err := bgg.do(req)
 	if err != nil {
 		return fmt.Errorf("http call failed: %w", err)
 	}

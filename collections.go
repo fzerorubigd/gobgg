@@ -381,7 +381,7 @@ func (bgg *BGG) GetCollection(ctx context.Context, username string, options ...C
 		delay = time.Second
 	)
 	for i := 1; ; i++ {
-		resp, err = bgg.client.Do(req)
+		resp, err = bgg.do(req)
 		if err != nil {
 			return nil, fmt.Errorf("http call failed: %w", err)
 		}

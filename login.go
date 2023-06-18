@@ -32,7 +32,7 @@ func (bgg *BGG) Login(ctx context.Context, username, password string) error {
 
 	req.Header.Add("content-type", "application/json")
 
-	resp, err := bgg.client.Do(req)
+	resp, err := bgg.do(req)
 	if err != nil {
 		return fmt.Errorf("http call failed: %w", err)
 	}

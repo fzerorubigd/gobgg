@@ -41,7 +41,7 @@ func (bgg *BGG) PersonImage(ctx context.Context, id int64) (*PersonImage, error)
 		return nil, fmt.Errorf("create request failed: %w", err)
 	}
 
-	resp, err := bgg.client.Do(req)
+	resp, err := bgg.do(req)
 	if err != nil {
 		return nil, fmt.Errorf("http call failed: %w", err)
 	}

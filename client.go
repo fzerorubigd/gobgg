@@ -4,13 +4,29 @@ import (
 	"net/http"
 	"net/url"
 	"sync"
+	"time"
 )
+
+// Limiter is a rate limiter interface from the go.uber.org/ratelimit
+// the package itself is not needed, but can be used with this client
+type Limiter interface {
+	// Take should block to make sure that the RPS is met.
+	Take() time.Time
+}
+
+type noOpLimiter struct {
+}
+
+func (noOpLimiter) Take() time.Time {
+	return time.Time{}
+}
 
 // BGG is the client for the boardgame geek site
 type BGG struct {
-	host   string
-	scheme string
-	client *http.Client
+	host    string
+	scheme  string
+	client  *http.Client
+	limiter Limiter
 
 	// I prefer not to use the cookie jar since this is simpler
 	cookies  []*http.Cookie
@@ -71,6 +87,11 @@ func (bgg *BGG) buildURL(path string, args map[string]string) string {
 	return u.String()
 }
 
+func (bgg *BGG) do(req *http.Request) (*http.Response, error) {
+	bgg.limiter.Take()
+	return bgg.client.Do(req)
+}
+
 // OptionSetter modify the internal settings
 type OptionSetter func(*BGG)
 
@@ -103,13 +124,21 @@ func SetCookies(username string, c []*http.Cookie) OptionSetter {
 	}
 }
 
+// SetLimiter can use tos et a limiter to limit the api call to the BGG
+func SetLimiter(limiter Limiter) OptionSetter {
+	return func(bgg *BGG) {
+		bgg.limiter = limiter
+	}
+}
+
 // NewBGGClient returns a new client
 func NewBGGClient(opt ...OptionSetter) *BGG {
 	result := &BGG{
-		host:   "boardgamegeek.com",
-		scheme: "https",
-		client: &http.Client{},
-		lock:   sync.RWMutex{},
+		host:    "boardgamegeek.com",
+		scheme:  "https",
+		client:  &http.Client{},
+		lock:    sync.RWMutex{},
+		limiter: noOpLimiter{},
 	}
 
 	for i := range opt {

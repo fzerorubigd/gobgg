@@ -55,7 +55,7 @@ func (bgg *BGG) SetRank(ctx context.Context, objectID int64, rate float64) error
 	req.Header.Add("content-type", "application/json")
 	bgg.requestCookies(req)
 
-	resp, err := bgg.client.Do(req)
+	resp, err := bgg.do(req)
 	if err != nil {
 		return fmt.Errorf("http call failed: %w", err)
 	}
@@ -99,7 +99,7 @@ func (bgg *BGG) SetRank(ctx context.Context, objectID int64, rate float64) error
 	req.Header.Add("content-type", "application/json")
 	bgg.requestCookies(req)
 
-	resp2, err := bgg.client.Do(req)
+	resp2, err := bgg.doo(req)
 	if err != nil {
 		return fmt.Errorf("http call failed: %w", err)
 	}

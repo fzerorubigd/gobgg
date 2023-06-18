@@ -88,7 +88,7 @@ func (bgg *BGG) Search(ctx context.Context, query string, setter ...SearchOption
 		return nil, fmt.Errorf("create request failed: %w", err)
 	}
 
-	resp, err := bgg.client.Do(req)
+	resp, err := bgg.do(req)
 	if err != nil {
 		return nil, fmt.Errorf("http call failed: %w", err)
 	}

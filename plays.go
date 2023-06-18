@@ -148,7 +148,7 @@ func (bgg *BGG) Plays(ctx context.Context, setter ...PlaysOptionSetter) (*Plays,
 		return nil, fmt.Errorf("create request failed: %w", err)
 	}
 
-	resp, err := bgg.client.Do(req)
+	resp, err := bgg.do(req)
 	if err != nil {
 		return nil, fmt.Errorf("http call failed: %w", err)
 	}

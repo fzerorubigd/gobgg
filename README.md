@@ -58,3 +58,22 @@ you need to call `Login` first.
 Person API
 ---
 For getting the person image you can use the -undocumented- person API `PersonImage`
+
+Rate Limiting 
+---
+
+Boardgamegeek does rate limit on all the api calls. Its a good idea to add a rate limiter to your client. 
+it is already supported and I recommend the 
+
+```go
+import (
+	"fmt"
+	"time"
+
+	"go.uber.org/ratelimit"
+	"github.com/fzerorubigd/gobgg"
+)
+
+rl := ratelimit.New(10, Per(60*time.Second)) // creates a 10 per minutes rate limiter.
+client := gobgg.NewBGGClient(gobgg.SetLimiter(rl))
+```

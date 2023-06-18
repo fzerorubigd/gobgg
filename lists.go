@@ -21,7 +21,7 @@ func (bgg *BGG) TopPages(ctx context.Context, page int) ([]int64, error) {
 	if err != nil {
 		return nil, fmt.Errorf("create request failed: %w", err)
 	}
-	resp, err := bgg.client.Do(req)
+	resp, err := bgg.do(req)
 	if err != nil {
 		return nil, fmt.Errorf("get request failed: %w", err)
 	}
@@ -91,7 +91,7 @@ func (bgg *BGG) Hotness(ctx context.Context, count int) ([]IDDelta, error) {
 	if err != nil {
 		return nil, fmt.Errorf("create request failed: %w", err)
 	}
-	resp, err := bgg.client.Do(req)
+	resp, err := bgg.do(req)
 	if err != nil {
 		return nil, fmt.Errorf("get request failed: %w", err)
 	}

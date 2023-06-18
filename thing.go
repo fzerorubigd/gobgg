@@ -221,7 +221,7 @@ func (bgg *BGG) GetThings(ctx context.Context, setters ...GetOptionSetter) ([]Th
 		return nil, fmt.Errorf("create request failed: %w", err)
 	}
 
-	resp, err := bgg.client.Do(req)
+	resp, err := bgg.do(req)
 	if err != nil {
 		return nil, fmt.Errorf("http call failed: %w", err)
 	}
@@ -351,7 +351,7 @@ func (bgg *BGG) GetRankBreakDown(ctx context.Context, gameID int64) (RankBreakDo
 		return rbd, fmt.Errorf("create request failed: %w", err)
 	}
 
-	resp, err := bgg.client.Do(req)
+	resp, err := bgg.do(req)
 	if err != nil {
 		return rbd, fmt.Errorf("http call failed: %w", err)
 	}
