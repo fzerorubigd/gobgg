@@ -1,8 +1,35 @@
 package gobgg
 
+import "fmt"
+
 const (
 	spcPollName = "suggested_numplayers"
 )
+
+// ThreeRating is a rating type for Best/Recommended/Not Recommended
+type ThreeRating int
+
+const (
+	// NotRecommended is not recommended
+	NotRecommended ThreeRating = iota
+	// Recommended
+	Recommended
+	// Best
+	Best
+)
+
+func (t ThreeRating) String() string {
+	switch t {
+	case NotRecommended:
+		return "Not Recommended"
+	case Recommended:
+		return "Recommended"
+	case Best:
+		return "Best"
+	}
+
+	return fmt.Sprint(int(t))
+}
 
 // SuggestedPlayerCount is a structure that shows the suggested player count based on user voting
 type SuggestedPlayerCount struct {
@@ -20,17 +47,17 @@ func percent(i1, i2, i3 int) float32 {
 	return (float32(i1) / sum) * 100
 }
 
-func (sp *SuggestedPlayerCount) Suggestion() (string, int, float32) {
+func (sp *SuggestedPlayerCount) Suggestion() (ThreeRating, int, float32) {
 	// In case of a tie, the not recommended wins, the recommended, then best
 	if sp.Recommended >= sp.Best && sp.Recommended > sp.NotRecommended {
-		return "Recommended", sp.Recommended, percent(sp.Recommended, sp.Best, sp.NotRecommended)
+		return Recommended, sp.Recommended, percent(sp.Recommended, sp.Best, sp.NotRecommended)
 	}
 
 	if sp.Best > sp.Recommended && sp.Best > sp.NotRecommended {
-		return "Best", sp.Best, percent(sp.Best, sp.Recommended, sp.NotRecommended)
+		return Best, sp.Best, percent(sp.Best, sp.Recommended, sp.NotRecommended)
 	}
 
-	return "Not Recommended", sp.NotRecommended, percent(sp.NotRecommended, sp.Best, sp.Recommended)
+	return NotRecommended, sp.NotRecommended, percent(sp.NotRecommended, sp.Best, sp.Recommended)
 }
 
 func (sp *SuggestedPlayerCount) BestPercentile() float32 {
