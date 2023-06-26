@@ -155,6 +155,21 @@ type CollectionItem struct {
 	CollectionStatus []string `json:"collection_status,omitempty"`
 }
 
+const (
+	// BoardGameCategory is the category link
+	BoardGameCategory = "boardgamecategory"
+	// BoardGameMechanic is the mechanics link
+	BoardGameMechanic = "boardgamemechanic"
+	// BoardGameFamily is the family link
+	BoardGameFamily = "boardgamefamily"
+	// BoardGameDesigner is the designer link
+	BoardGameDesigner = "boardgamedesigner"
+	// BoardGameArtist is the artist link
+	BoardGameArtist = "boardgameartist"
+	// BoardGamePublisher is the publisher
+	BoardGamePublisher = "boardgamepublisher"
+)
+
 // ThingResult is the result for the thing api
 type ThingResult struct {
 	ID             int64    `json:"id,omitempty"`
@@ -196,6 +211,48 @@ type ThingResult struct {
 
 	RankTotal int                   `json:"rank_total,omitempty"`
 	Family    map[string]FamilyRank `json:"family,omitempty"`
+}
+
+// GetLinkByName return the link by its name (if available) and return empty link
+// if not
+func (tr *ThingResult) GetLinkByName(name string) []Link {
+	for cat := range tr.Links {
+		if cat == name {
+			return tr.Links[cat]
+		}
+	}
+
+	return []Link{}
+}
+
+// Categories return board game categories
+func (tr *ThingResult) Categories() []Link {
+	return tr.GetLinkByName(BoardGameCategory)
+}
+
+// Mechanics return board game mechanics
+func (tr *ThingResult) Mechanics() []Link {
+	return tr.GetLinkByName(BoardGameMechanic)
+}
+
+// Families return board game families
+func (tr *ThingResult) Families() []Link {
+	return tr.GetLinkByName(BoardGameFamily)
+}
+
+// Designers return board game designers
+func (tr *ThingResult) Designers() []Link {
+	return tr.GetLinkByName(BoardGameDesigner)
+}
+
+// Artists return board game artists
+func (tr *ThingResult) Artists() []Link {
+	return tr.GetLinkByName(BoardGameArtist)
+}
+
+// Publishers return board game publishers
+func (tr *ThingResult) Publishers() []Link {
+	return tr.GetLinkByName(BoardGamePublisher)
 }
 
 // GetThings is the get things API entry point
