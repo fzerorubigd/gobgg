@@ -44,6 +44,29 @@ const (
 	CollectionTypeWantParts CollectionType = "wantparts"
 )
 
+const (
+	// WishListPriorityMustHave BGA definition
+	WishListPriorityMustHave = iota + 1
+	// WishListPriorityLoveToHave BGA definition
+	WishListPriorityLoveToHave
+	// WishListPriorityLikeToHave BGA definition
+	WishListPriorityLikeToHave
+	// WishListPriorityThinkingAboutIt BGA definition
+	WishListPriorityThinkingAboutIt
+	// WishListPriorityDoNotBuy BGA definition
+	WishListPriorityDoNotBuy
+)
+
+var (
+	priorityToText = map[int]string{
+		WishListPriorityMustHave:        "musthave",
+		WishListPriorityLoveToHave:      "lovetohave",
+		WishListPriorityLikeToHave:      "liketohave",
+		WishListPriorityThinkingAboutIt: "thinkingaboutit",
+		WishListPriorityDoNotBuy:        "donotbuy",
+	}
+)
+
 type collectionStatus struct {
 	Text             string `xml:",chardata"`
 	Own              int    `xml:"own,attr"`
@@ -169,10 +192,12 @@ func (c *GetCollectionOptions) toMap() map[string]string {
 	setIf(c.bggrating > 0, "bggrating", fmt.Sprint(c.bggrating))
 	setIf(c.minrating > 0, "minrating", fmt.Sprint(c.minrating))
 	setIf(c.rating > 0, "rating", fmt.Sprint(c.rating))
-	setIf(c.modifiedsince != nil, "modifiedsince", c.modifiedsince.Format("06-01-02"))
 	setIf(c.minplays > 0, "minplays", fmt.Sprint(c.minplays))
 	setIf(c.maxplays > 0, "maxplays", fmt.Sprint(c.maxplays))
 	setIf(c.collID > 0, "collid", fmt.Sprint(c.collID))
+	if c.modifiedsince != nil {
+		result["modifiedsince"] = c.modifiedsince.Format("06-01-02")
+	}
 
 	for i := range c.options {
 		result[string(c.options[i])] = "1"
@@ -306,7 +331,8 @@ func statusToStringArray(status *collectionStatus, played int) []string {
 	setIf(status.Wanttoplay != 0, "wanttoplay")
 	setIf(status.Wanttotrade != 0, "wanttotrade")
 	setIf(status.Wishlist != 0, "wishlist")
-	setIf(status.Wishlistpriority != 0, "wishlistpriority")
+	prio, ok := priorityToText[status.Wishlistpriority]
+	setIf(ok, prio)
 	setIf(status.Preordered != 0, "preordered")
 	setIf(status.Prevowned != 0, "previouslyowned")
 	setIf(status.Fortrade != 0, "fortrade")
