@@ -21,6 +21,7 @@ func TestGetCollection(t *testing.T) {
 		174430: {"wishlist", "musthave"}, // Gloomhaven
 		204583: {"owned"},
 		224517: {"owned"},
+		23383:  {"owned"},
 		233078: {"wishlist", "thinkingaboutit"}, // TI4
 		342942: {"wishlist", "liketohave"},      // Ark Nova
 	}
