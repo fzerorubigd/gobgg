@@ -73,5 +73,4 @@ func TestSearch(t *testing.T) {
 	assert.Equal(t, int64(1000), items[0].ID)
 	assert.Equal(t, 2018, items[0].YearPublished)
 	assert.Equal(t, BoardGameType, items[0].Type)
-
 }

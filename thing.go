@@ -356,6 +356,7 @@ func (rb RankBreakDown) Total() int64 {
 
 	return total
 }
+
 func (rb RankBreakDown) Average() float64 {
 	var (
 		total int64

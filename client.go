@@ -14,8 +14,7 @@ type Limiter interface {
 	Take() time.Time
 }
 
-type noOpLimiter struct {
-}
+type noOpLimiter struct{}
 
 func (noOpLimiter) Take() time.Time {
 	return time.Time{}

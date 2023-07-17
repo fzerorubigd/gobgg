@@ -139,8 +139,8 @@ type GetCollectionOptions struct {
 	version        bool
 	subtype        string
 	excludesubtype string
-	//brief          bool
-	//stats          bool
+	// brief          bool
+	// stats          bool
 	options      []CollectionType
 	minrating    int
 	rating       int
@@ -148,7 +148,7 @@ type GetCollectionOptions struct {
 	bggrating    int
 	minplays     int
 	maxplays     int
-	//showprivate   bool
+	// showprivate   bool
 	ids           []int64
 	collID        int64
 	modifiedsince *time.Time
@@ -156,48 +156,26 @@ type GetCollectionOptions struct {
 
 func (c *GetCollectionOptions) toMap() map[string]string {
 	result := map[string]string{}
-	if c.version {
-		result["version"] = "1"
-	}
 
-	if c.subtype != "" {
-		result["subtype"] = c.subtype
+	setIf := func(cond bool, key, value string) {
+		if cond {
+			result[key] = value
+		}
 	}
-
-	if c.excludesubtype != "" {
-		result["excludesubtype"] = c.excludesubtype
-	}
-
-	if c.minbggrating > 0 {
-		result["minbggrating"] = fmt.Sprint(c.minbggrating)
-	}
-
-	if c.bggrating > 0 {
-		result["bggrating"] = fmt.Sprint(c.bggrating)
-	}
-
-	if c.minrating > 0 {
-		result["minrating"] = fmt.Sprint(c.minrating)
-	}
-
-	if c.rating > 0 {
-		result["rating"] = fmt.Sprint(c.rating)
-	}
+	setIf(c.version, "version", "1")
+	setIf(c.subtype != "", "subtype", c.subtype)
+	setIf(c.excludesubtype != "", "excludesubtype", c.excludesubtype)
+	setIf(c.minbggrating > 0, "minbggrating", fmt.Sprint(c.minbggrating))
+	setIf(c.bggrating > 0, "bggrating", fmt.Sprint(c.bggrating))
+	setIf(c.minrating > 0, "minrating", fmt.Sprint(c.minrating))
+	setIf(c.rating > 0, "rating", fmt.Sprint(c.rating))
+	setIf(c.modifiedsince != nil, "modifiedsince", c.modifiedsince.Format("06-01-02"))
+	setIf(c.minplays > 0, "minplays", fmt.Sprint(c.minplays))
+	setIf(c.maxplays > 0, "maxplays", fmt.Sprint(c.maxplays))
+	setIf(c.collID > 0, "collid", fmt.Sprint(c.collID))
 
 	for i := range c.options {
 		result[string(c.options[i])] = "1"
-	}
-
-	if c.modifiedsince != nil {
-		result["modifiedsince"] = c.modifiedsince.Format("06-01-02")
-	}
-
-	if c.minplays > 0 {
-		result["minplays"] = fmt.Sprint(c.minplays)
-	}
-
-	if c.maxplays > 0 {
-		result["maxplays"] = fmt.Sprint(c.maxplays)
 	}
 
 	if len(c.ids) > 0 {
@@ -208,10 +186,6 @@ func (c *GetCollectionOptions) toMap() map[string]string {
 			}
 		}
 		result["id"] = strings.Join(st, ",")
-	}
-
-	if c.collID > 0 {
-		result["collid"] = fmt.Sprint(c.collID)
 	}
 
 	return result
@@ -321,39 +295,22 @@ func SetMaxPlays(plays int) CollectionOptionSetter {
 
 func statusToStringArray(status *collectionStatus, played int) []string {
 	var result []string
-	if status.Own != 0 {
-		result = append(result, "owned")
+	setIf := func(cond bool, txt string) {
+		if cond {
+			result = append(result, txt)
+		}
 	}
-	if status.Want != 0 {
-		result = append(result, "want")
-	}
-	if status.Wanttobuy != 0 {
-		result = append(result, "wanttobuy")
-	}
-	if status.Wanttoplay != 0 {
-		result = append(result, "wanttoplay")
-	}
-	if status.Wanttotrade != 0 {
-		result = append(result, "wanttotrade")
-	}
-	if status.Wishlist != 0 {
-		result = append(result, "wishlist")
-	}
-	if status.Wishlistpriority != 0 {
-		result = append(result, "wishlistpriority")
-	}
-	if status.Preordered != 0 {
-		result = append(result, "preordered")
-	}
-	if status.Prevowned != 0 {
-		result = append(result, "previouslyowned")
-	}
-	if status.Fortrade != 0 {
-		result = append(result, "fortrade")
-	}
-	if played > 0 {
-		result = append(result, "played")
-	}
+	setIf(status.Own != 0, "owned")
+	setIf(status.Want != 0, "want")
+	setIf(status.Wanttobuy != 0, "wanttobuy")
+	setIf(status.Wanttoplay != 0, "wanttoplay")
+	setIf(status.Wanttotrade != 0, "wanttotrade")
+	setIf(status.Wishlist != 0, "wishlist")
+	setIf(status.Wishlistpriority != 0, "wishlistpriority")
+	setIf(status.Preordered != 0, "preordered")
+	setIf(status.Prevowned != 0, "previouslyowned")
+	setIf(status.Fortrade != 0, "fortrade")
+	setIf(played > 0, "played")
 	return result
 }
 

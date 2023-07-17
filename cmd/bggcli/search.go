@@ -13,9 +13,7 @@ import (
 
 func search(ctx context.Context, bgg *gobgg.BGG, args ...string) error {
 	cmd := flag.NewFlagSet(args[0], flag.ExitOnError)
-	var (
-		exact bool
-	)
+	var exact bool
 	cmd.BoolVar(&exact, "exact", false, "exact search on bgg")
 	if err := cmd.Parse(args[1:]); err != nil {
 		return err
