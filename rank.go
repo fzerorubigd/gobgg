@@ -26,19 +26,15 @@ type (
 	}
 )
 
-// SetRank tries to add rank for an item (experimental)
-func (bgg *BGG) SetRank(ctx context.Context, objectID int64, rate float64) error {
-	if rate <= 0 || rate > 10 {
-		return fmt.Errorf("invalid rate range: %f", rate)
-	}
+func (bgg *BGG) myCollections(ctx context.Context, objectID int64) (*rankResponse, error) {
 	name := bgg.GetActiveUsername()
 	if len(bgg.GetActiveCookies()) == 0 || name == "" {
-		return fmt.Errorf("call realrank first")
+		return nil, fmt.Errorf("call Login first")
 	}
 
 	usr, err := bgg.GetUser(ctx, name)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	params := map[string]string{
@@ -49,7 +45,7 @@ func (bgg *BGG) SetRank(ctx context.Context, objectID int64, rate float64) error
 	u := bgg.buildURL(apiCollectionUrl, params)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {
-		return fmt.Errorf("failed to create the request: %w", err)
+		return nil, fmt.Errorf("failed to create the request: %w", err)
 	}
 
 	req.Header.Add("content-type", "application/json")
@@ -57,17 +53,32 @@ func (bgg *BGG) SetRank(ctx context.Context, objectID int64, rate float64) error
 
 	resp, err := bgg.do(req)
 	if err != nil {
-		return fmt.Errorf("http call failed: %w", err)
+		return nil, fmt.Errorf("http call failed: %w", err)
 	}
 	defer resp.Body.Close()
 
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return fmt.Errorf("read body failed: %w", err)
+		return nil, fmt.Errorf("read body failed: %w", err)
 	}
+
 	var items rankResponse
 	if err := json.Unmarshal(b, &items); err != nil {
-		return fmt.Errorf("decoding JSON failed: %w", err)
+		return nil, fmt.Errorf("decoding JSON failed: %w", err)
+	}
+
+	return &items, nil
+}
+
+// SetRank tries to add rank for an item (experimental)
+func (bgg *BGG) SetRank(ctx context.Context, objectID int64, rate float64) error {
+	if rate <= 0 || rate > 10 {
+		return fmt.Errorf("invalid rate range: %f", rate)
+	}
+
+	items, err := bgg.myCollections(ctx, objectID)
+	if err != nil {
+		return err
 	}
 
 	if len(items.Items) == 0 {
@@ -85,13 +96,13 @@ func (bgg *BGG) SetRank(ctx context.Context, objectID int64, rate float64) error
 	update := rankRequest{
 		Item: item,
 	}
-	b, err = json.Marshal(update)
+	b, err := json.Marshal(update)
 	if err != nil {
 		return fmt.Errorf("marshaling json failed: %w", err)
 	}
 
 	url := bgg.buildURL(fmt.Sprintf(apiCollectionItemUrl, collid), nil)
-	req, err = http.NewRequestWithContext(ctx, http.MethodPut, url, bytes.NewBuffer(b))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPut, url, bytes.NewBuffer(b))
 	if err != nil {
 		return fmt.Errorf("failed to create the request: %w", err)
 	}
@@ -99,13 +110,13 @@ func (bgg *BGG) SetRank(ctx context.Context, objectID int64, rate float64) error
 	req.Header.Add("content-type", "application/json")
 	bgg.requestCookies(req)
 
-	resp2, err := bgg.do(req)
+	resp, err := bgg.do(req)
 	if err != nil {
 		return fmt.Errorf("http call failed: %w", err)
 	}
-	defer resp2.Body.Close()
+	defer resp.Body.Close()
 
-	if resp2.StatusCode < 200 || resp2.StatusCode >= 300 {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return fmt.Errorf("failed with status code")
 	}
 

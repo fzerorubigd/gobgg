@@ -85,7 +85,7 @@ func TestGetThing(t *testing.T) {
 			strings.Split(fmt.Sprintf("alter1-%[2]s-%[1]d,alter2-%[2]s-%[1]d", ids[i], "boardgame"), ","),
 			items[i].AlternateNames)
 
-		//id%10+1, id%10+5, id%100+20, id%100-20, id%100+60, id%5+8
+		// id%10+1, id%10+5, id%100+20, id%100-20, id%100+60, id%5+8
 		assert.Equal(t, int(ids[i]%10+1), items[i].MinPlayers)
 		assert.Equal(t, int(ids[i]%10+5), items[i].MaxPlayers)
 		assert.Equal(t, fmt.Sprint(ids[i]%100+20), items[i].PlayTime)

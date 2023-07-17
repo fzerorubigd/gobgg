@@ -135,8 +135,7 @@ type Statistics struct {
 	} `xml:"ratings"`
 }
 
-type Poll struct {
-}
+type Poll struct{}
 
 // PollItem is a single poll  item in a poll
 type PollItem struct {
