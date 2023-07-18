@@ -2,6 +2,7 @@ package gobgg_test
 
 import (
 	"context"
+	"os"
 	"testing"
 	"time"
 
@@ -11,8 +12,7 @@ import (
 )
 
 func TestPostPlay(t *testing.T) {
-	//pass := os.Getenv("BGG_PASSWORD")
-	pass := "a+xE?t-I>jlOc8]!Ins'9OxtX"
+	pass := os.Getenv("BGG_PASSWORD")
 	if pass == "" {
 		t.Skip()
 		return
@@ -23,7 +23,7 @@ func TestPostPlay(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "gobgg", bgg.GetActiveUsername())
 
-	err = bgg.PostPlay(ctx, &gobgg.Play{
+	num, err := bgg.PostPlay(ctx, &gobgg.Play{
 		Date:     time.Now(),
 		Quantity: 1,
 		Length:   time.Minute * 20,
@@ -48,4 +48,5 @@ func TestPostPlay(t *testing.T) {
 	})
 
 	require.NoError(t, err)
+	require.Greater(t, num, 0)
 }
