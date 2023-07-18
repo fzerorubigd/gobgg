@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 )
@@ -43,9 +44,17 @@ type createPlayPayload struct {
 	Action         string         `json:"action"`
 }
 
-func (bgg *BGG) PostPlay(ctx context.Context, play *Play) error {
+type createPlayResponse struct {
+	Playid   string `json:"playid,omitempty"`
+	Numplays int    `json:"numplays,omitempty"`
+	HTML     string `json:"html,omitempty"`
+	Error    string `json:"error,omitempty"`
+}
+
+// PostPlay save a play record, you should be logged in, and it returns the number of plays after you save this one
+func (bgg *BGG) PostPlay(ctx context.Context, play *Play) (int, error) {
 	if len(bgg.GetActiveCookies()) == 0 {
-		return fmt.Errorf("call Login first")
+		return 0, fmt.Errorf("call Login first")
 	}
 	payload := createPlayPayload{
 		Playdate:   play.Date.Format(bggTimeFormat),
@@ -83,12 +92,12 @@ func (bgg *BGG) PostPlay(ctx context.Context, play *Play) error {
 	u := bgg.buildURL("geekplay.php", nil)
 	b, err := json.Marshal(payload)
 	if err != nil {
-		return fmt.Errorf("create payload failed: %w", err)
+		return 0, fmt.Errorf("create payload failed: %w", err)
 	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, u, bytes.NewBuffer(b))
 	if err != nil {
-		return fmt.Errorf("failed to create the request: %w", err)
+		return 0, fmt.Errorf("failed to create the request: %w", err)
 	}
 
 	req.Header.Add("content-type", "application/json")
@@ -96,13 +105,29 @@ func (bgg *BGG) PostPlay(ctx context.Context, play *Play) error {
 
 	resp, err := bgg.do(req)
 	if err != nil {
-		return fmt.Errorf("http call failed: %w", err)
+		return 0, fmt.Errorf("http call failed: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return fmt.Errorf("failed with status code")
+		return 0, fmt.Errorf("failed with status code")
 	}
 
-	return nil
+	b, err = io.ReadAll(resp.Body)
+	if err != nil {
+		return 0, fmt.Errorf("failed to read the payload: %w", err)
+	}
+
+	var cpr createPlayResponse
+	if err := json.Unmarshal(b, &cpr); err != nil {
+		return 0, fmt.Errorf("invalid json response: %w", err)
+	}
+
+	if cpr.Error != "" {
+		return 0, fmt.Errorf("create play failed: %q", cpr.Error)
+	}
+
+	play.ID = safeInt(cpr.Playid)
+
+	return cpr.Numplays, nil
 }
