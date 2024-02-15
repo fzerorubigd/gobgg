@@ -70,13 +70,13 @@ func main() {
 	bgg := gobgg.NewBGGClient()
 
 	var opt []gobgg.CollectionType
+	flag.Parse()
 
 	for ct, ok := range items {
 		if *ok {
 			opt = append(opt, ct)
 		}
 	}
-	flag.Parse()
 	if username == "" {
 		log.Fatal("username is mandatory")
 	}
@@ -92,6 +92,7 @@ func main() {
 		rec := []string{
 			p[i].Name,
 			fmt.Sprint(p[i].ID),
+			fmt.Sprint(p[i].YearPublished),
 			getTheUrl(ctx, p[i].ID),
 			strings.Join(p[i].CollectionStatus, ","),
 		}

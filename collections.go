@@ -57,15 +57,13 @@ const (
 	WishListPriorityDoNotBuy
 )
 
-var (
-	priorityToText = map[int]string{
-		WishListPriorityMustHave:        "musthave",
-		WishListPriorityLoveToHave:      "lovetohave",
-		WishListPriorityLikeToHave:      "liketohave",
-		WishListPriorityThinkingAboutIt: "thinkingaboutit",
-		WishListPriorityDoNotBuy:        "donotbuy",
-	}
-)
+var priorityToText = map[int]string{
+	WishListPriorityMustHave:        "musthave",
+	WishListPriorityLoveToHave:      "lovetohave",
+	WishListPriorityLikeToHave:      "liketohave",
+	WishListPriorityThinkingAboutIt: "thinkingaboutit",
+	WishListPriorityDoNotBuy:        "donotbuy",
+}
 
 type collectionStatus struct {
 	Text             string `xml:",chardata"`
@@ -325,18 +323,18 @@ func statusToStringArray(status *collectionStatus, played int) []string {
 			result = append(result, txt)
 		}
 	}
-	setIf(status.Own != 0, "owned")
-	setIf(status.Want != 0, "want")
-	setIf(status.Wanttobuy != 0, "wanttobuy")
-	setIf(status.Wanttoplay != 0, "wanttoplay")
-	setIf(status.Wanttotrade != 0, "wanttotrade")
-	setIf(status.Wishlist != 0, "wishlist")
+	setIf(status.Own != 0, string(CollectionTypeOwn))
+	setIf(status.Want != 0, string(CollectionTypeWant))
+	setIf(status.Wanttobuy != 0, string(CollectionTypeWantToBuy))
+	setIf(status.Wanttoplay != 0, string(CollectionTypeWantToPlay))
+	setIf(status.Wanttotrade != 0, string(CollectionTypeTrade))
+	setIf(status.Wishlist != 0, string(CollectionTypeWishList))
 	prio, ok := priorityToText[status.Wishlistpriority]
 	setIf(ok, prio)
-	setIf(status.Preordered != 0, "preordered")
-	setIf(status.Prevowned != 0, "previouslyowned")
-	setIf(status.Fortrade != 0, "fortrade")
-	setIf(played > 0, "played")
+	setIf(status.Preordered != 0, string(CollectionTypePreorder))
+	setIf(status.Prevowned != 0, string(CollectionTypePrevOwned))
+	setIf(status.Fortrade != 0, string(CollectionTypeTrade))
+	setIf(played > 0, string(CollectionTypePlayed))
 	return result
 }
 
