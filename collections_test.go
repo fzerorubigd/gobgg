@@ -17,11 +17,11 @@ func TestGetCollection(t *testing.T) {
 	require.NoError(t, err)
 	// I create the user and add some games to it
 	games := map[int64][]string{
-		161936: {"previouslyowned"},      // Pandemic Legacy: Season 1
+		161936: {"prevowned"},            // Pandemic Legacy: Season 1
 		174430: {"wishlist", "musthave"}, // Gloomhaven
-		204583: {"owned"},
-		224517: {"owned"},
-		23383:  {"owned", "played"},
+		204583: {"own"},
+		224517: {"own"},
+		23383:  {"own", "played"},
 		233078: {"wishlist", "thinkingaboutit"}, // TI4
 		342942: {"wishlist", "liketohave"},      // Ark Nova
 	}
