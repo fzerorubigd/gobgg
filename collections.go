@@ -400,7 +400,7 @@ func (bgg *BGG) GetCollection(ctx context.Context, username string, options ...C
 			CollID:           result.Item[i].Collid,
 			Name:             result.Item[i].Name.Text,
 			Description:      strings.Trim(html.UnescapeString(result.Item[i].Text), "\n\t "),
-			Type:             ItemType(result.Item[i].Objecttype),
+			Type:             ItemType(result.Item[i].Subtype),
 			YearPublished:    int(safeInt(result.Item[i].Yearpublished)),
 			Thumbnail:        result.Item[i].Thumbnail,
 			Image:            result.Item[i].Image,
