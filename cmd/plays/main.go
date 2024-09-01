@@ -21,6 +21,7 @@ func main() {
 		syscall.SIGQUIT,
 		syscall.SIGABRT)
 	defer cancel()
+	flag.Parse()
 	bgg := gobgg.NewBGGClient()
 
 	var plays []gobgg.Play

@@ -184,7 +184,7 @@ type ThingResult struct {
 	MinPlayers int `json:"min_players,omitempty"`
 	MaxPlayers int `json:"max_players,omitempty"`
 
-	SuggestedPlayerCount []SuggestedPlayerCount
+	SuggestedPlayerCount []SuggestedPlayerCount `json:"suggested_player_count"`
 
 	// TODO: int?
 	MinAge string `json:"min_age,omitempty"`

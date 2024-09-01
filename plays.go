@@ -171,7 +171,7 @@ func (bgg *BGG) Plays(ctx context.Context, setter ...PlaysOptionSetter) (*Plays,
 		item := Play{
 			ID:         safeInt(ply.ID),
 			Date:       safeDate(ply.Date),
-			Quantity:   safeInt(ply.Quantity),
+			Quantity:   safeFloat64(ply.Quantity),
 			Length:     time.Duration(safeInt(ply.Length)) * time.Second,
 			Incomplete: safeInt(ply.Incomplete) != 0,
 			NowInStats: safeInt(ply.NowInStats) != 0,

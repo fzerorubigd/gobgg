@@ -1,6 +1,6 @@
 module github.com/fzerorubigd/gobgg
 
-go 1.17
+go 1.20
 
 require (
 	github.com/jarcoal/httpmock v1.3.1
@@ -9,8 +9,12 @@ require (
 )
 
 require (
-	github.com/davecgh/go-spew v1.1.1
+	go.uber.org/ratelimit v0.3.0
 	golang.org/x/net v0.21.0
 )
 
-require github.com/pmezard/go-difflib v1.0.0 // indirect
+require (
+	github.com/benbjohnson/clock v1.3.0 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+)

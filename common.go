@@ -170,7 +170,7 @@ type Plays struct {
 type Play struct {
 	ID         int64         `json:"id,omitempty"`
 	Date       time.Time     `json:"date,omitempty"`
-	Quantity   int64         `json:"quantity,omitempty"`
+	Quantity   float64       `json:"quantity,omitempty"`
 	Length     time.Duration `json:"length,omitempty"`
 	Incomplete bool          `json:"incomplete,omitempty"`
 	NowInStats bool          `json:"now_in_stats,omitempty"`
