@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/jarcoal/httpmock v1.3.1
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.9.0
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
