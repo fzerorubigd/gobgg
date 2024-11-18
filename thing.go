@@ -118,7 +118,8 @@ type thingItems struct {
 
 // GetThingOption is the options for the GetThing api
 type GetThingOption struct {
-	ids []string
+	ids     []string
+	fullURL bool
 }
 
 // GetOptionSetter is the option setter for the GetThing api
@@ -130,6 +131,12 @@ func GetThingIDs(ids ...int64) GetOptionSetter {
 		for i := range ids {
 			opt.ids = append(opt.ids, fmt.Sprint(ids[i]))
 		}
+	}
+}
+
+func GetThingsFullURL(get bool) GetOptionSetter {
+	return func(gto *GetThingOption) {
+		gto.fullURL = get
 	}
 }
 
@@ -211,6 +218,8 @@ type ThingResult struct {
 
 	RankTotal int                   `json:"rank_total,omitempty"`
 	Family    map[string]FamilyRank `json:"family,omitempty"`
+
+	BGGURL string
 }
 
 // GetLinkByName return the link by its name (if available) and return empty link
@@ -319,6 +328,7 @@ func (bgg *BGG) GetThings(ctx context.Context, setters ...GetOptionSetter) ([]Th
 			NumWeight:            int(safeInt(result.Item[i].Statistics.Ratings.Numweights.Value)),
 			AverageWeight:        safeFloat64(result.Item[i].Statistics.Ratings.Averageweight.Value),
 			Family:               make(map[string]FamilyRank),
+			BGGURL:               bgg.getFullURL(ctx, result.Item[i].ID, opt.fullURL),
 		}
 
 		for _, r := range result.Item[i].Statistics.Ratings.Ranks.Rank {
@@ -437,4 +447,24 @@ func (bgg *BGG) GetRankBreakDown(ctx context.Context, gameID int64) (RankBreakDo
 	}
 
 	return rbd, nil
+}
+
+func (bgg *BGG) getFullURL(ctx context.Context, gameID int64, validate bool) string {
+	u := bgg.buildURL(fmt.Sprintf("/boardgame/%d", gameID), nil)
+	if !validate {
+		return u
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodHead, u, nil)
+	if err != nil {
+		return u
+	}
+	resp, err := bgg.roundTrip(req)
+	if err != nil {
+		return u
+	}
+	head := resp.Header.Get("Location")
+	if head == "" {
+		return u
+	}
+	return head
 }
