@@ -470,5 +470,5 @@ func (bgg *BGG) getFullURL(ctx context.Context, gameID int64, validate bool) str
 	if head == "" {
 		return u
 	}
-	return head
+	return bgg.buildURL(head, nil)
 }
