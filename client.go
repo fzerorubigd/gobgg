@@ -91,6 +91,11 @@ func (bgg *BGG) do(req *http.Request) (*http.Response, error) {
 	return bgg.client.Do(req)
 }
 
+func (bgg *BGG) roundTrip(req *http.Request) (*http.Response, error) {
+	bgg.limiter.Take()
+	return bgg.client.Transport.RoundTrip(req)
+}
+
 // OptionSetter modify the internal settings
 type OptionSetter func(*BGG)
 
@@ -133,9 +138,11 @@ func SetLimiter(limiter Limiter) OptionSetter {
 // NewBGGClient returns a new client
 func NewBGGClient(opt ...OptionSetter) *BGG {
 	result := &BGG{
-		host:    "boardgamegeek.com",
-		scheme:  "https",
-		client:  &http.Client{},
+		host:   "boardgamegeek.com",
+		scheme: "https",
+		client: &http.Client{
+			Transport: http.DefaultTransport,
+		},
 		lock:    sync.RWMutex{},
 		limiter: noOpLimiter{},
 	}
