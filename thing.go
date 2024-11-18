@@ -276,6 +276,10 @@ func (bgg *BGG) GetThings(ctx context.Context, setters ...GetOptionSetter) ([]Th
 		return nil, errors.New("at least one id is required")
 	}
 
+	if len(opt.ids) > 20 {
+		return nil, errors.New("BGG limits the number of item in one call to 20 items")
+	}
+
 	args := map[string]string{
 		"id":    strings.Join(opt.ids, ","),
 		"stats": "1",
