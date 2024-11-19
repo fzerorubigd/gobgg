@@ -6,13 +6,15 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"golang.org/x/net/html"
 )
 
 const (
-	topPages    = "browse/boardgame/page/%d"
-	hotnessPage = "https://api.geekdo.com/api/hotness"
+	topPages     = "browse/boardgame/page/%d"
+	hotnessPage  = "https://api.geekdo.com/api/hotness"
+	geekListPage = "https://api.geekdo.com/api/listitems"
 )
 
 func (bgg *BGG) TopPages(ctx context.Context, page int) ([]int64, error) {
@@ -79,7 +81,7 @@ type IDDelta struct {
 }
 
 func (bgg *BGG) Hotness(ctx context.Context, count int) ([]IDDelta, error) {
-	if count < 1 || count > 100 {
+	if count < 1 || count > 50 {
 		count = 50
 	}
 	u := bgg.buildURL(hotnessPage, map[string]string{
@@ -115,5 +117,104 @@ func (bgg *BGG) Hotness(ctx context.Context, count int) ([]IDDelta, error) {
 		final[i].Delta = result.Items[i].Delta
 	}
 
+	return final, nil
+}
+
+type geekListResult struct {
+	Data []struct {
+		Type   string `json:"type"`
+		ID     string `json:"id"`
+		Listid string `json:"listid"`
+		Item   struct {
+			Type           string `json:"type"`
+			ID             string `json:"id"`
+			Name           string `json:"name"`
+			Href           string `json:"href"`
+			Label          string `json:"label"`
+			Labelpl        string `json:"labelpl"`
+			HasAngularLink bool   `json:"hasAngularLink"`
+			Descriptors    []struct {
+				Name         string `json:"name"`
+				DisplayValue string `json:"displayValue"`
+			} `json:"descriptors"`
+			Breadcrumbs   []any `json:"breadcrumbs"`
+			ImageSets     any   `json:"imageSets"`
+			Imageid       int   `json:"imageid"`
+			NameSortIndex int   `json:"nameSortIndex"`
+		} `json:"item"`
+		Postdate        time.Time `json:"postdate"`
+		Editdate        time.Time `json:"editdate"`
+		Body            string    `json:"body"`
+		BodyXML         string    `json:"bodyXml"`
+		Author          int       `json:"author"`
+		Href            string    `json:"href"`
+		Imageid         int       `json:"imageid"`
+		ImageOverridden bool      `json:"imageOverridden"`
+		LinkedImage     any       `json:"linkedImage"`
+		RollsEnabled    bool      `json:"rollsEnabled"`
+		Links           []struct {
+			Rel string `json:"rel"`
+			URI string `json:"uri"`
+		} `json:"links"`
+		RollsCount int `json:"rollsCount"`
+		Stats      struct {
+			Average float64 `json:"average"`
+			Rank    int     `json:"rank"`
+		} `json:"stats"`
+	} `json:"data"`
+	Pagination struct {
+		Pageid  int `json:"pageid"`
+		PerPage int `json:"perPage"`
+		Total   int `json:"total"`
+	} `json:"pagination"`
+}
+type ListItem struct {
+	ID          int64
+	Name        string
+	Description string
+}
+
+func (bgg *BGG) GeekList(ctx context.Context, geekID int64) ([]ListItem, error) {
+	var final []ListItem
+	page := 1
+	for {
+		u := bgg.buildURL(geekListPage, map[string]string{
+			"page":   fmt.Sprint(page),
+			"listid": fmt.Sprint(geekID),
+		})
+
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
+		if err != nil {
+			return nil, fmt.Errorf("create request failed: %w", err)
+		}
+		resp, err := bgg.do(req)
+		if err != nil {
+			return nil, fmt.Errorf("get request failed: %w", err)
+		}
+		defer func() {
+			_ = resp.Body.Close()
+		}()
+
+		data, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, fmt.Errorf("read failed: %w", err)
+		}
+		result := geekListResult{}
+		err = json.Unmarshal(data, &result)
+		if err != nil {
+			return nil, fmt.Errorf("JSON parsing failed: %w", err)
+		}
+		if len(result.Data) == 0 {
+			break
+		}
+		for i := range result.Data {
+			final = append(final, ListItem{
+				ID:          safeInt(result.Data[i].Item.ID),
+				Name:        result.Data[i].Item.Name,
+				Description: result.Data[i].Body,
+			})
+		}
+		page++
+	}
 	return final, nil
 }
