@@ -59,11 +59,20 @@ Person API
 ---
 For getting the person image you can use the -undocumented- person API `PersonImage`
 
+GeekList
+--- 
+The library supports getting the lists by their id using the `GeekList` function 
+
+Hotness
+--- 
+It is possible to get thodays hotness and the the change since yesterday using the `Hotness` function 
+
+
 Rate Limiting 
 ---
 
 Boardgamegeek does rate limit on all the api calls. Its a good idea to add a rate limiter to your client. 
-it is already supported and I recommend the 
+it is already supported and I recommend the `go.uber.org/ratelimit`
 
 ```go
 import (
