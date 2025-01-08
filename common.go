@@ -323,3 +323,16 @@ func getID(url string, typ string) int64 {
 
 	return s
 }
+
+func getPreviousDay(t time.Time, day time.Weekday) time.Time {
+	w := t.Weekday()
+	if w == day {
+		return t
+	}
+
+	return t.AddDate(0, 0, int(day-w))
+}
+
+func getStartOfTheMonth(t time.Time) time.Time {
+	return time.Date(t.Year(), t.Month(), 1, 1, 1, 1, 1, time.UTC)
+}

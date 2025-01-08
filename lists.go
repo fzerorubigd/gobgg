@@ -12,9 +12,19 @@ import (
 )
 
 const (
-	topPages     = "browse/boardgame/page/%d"
-	hotnessPage  = "https://api.geekdo.com/api/hotness"
-	geekListPage = "https://api.geekdo.com/api/listitems"
+	topPages         = "browse/boardgame/page/%d"
+	hotnessPage      = "https://api.geekdo.com/api/hotness"
+	geekListPage     = "https://api.geekdo.com/api/listitems"
+	trendBestSeller  = "https://api.geekdo.com/api/trends/ownership"
+	trendMostPlays   = "https://api.geekdo.com/api/trends/plays"
+	trendsTrendPlays = "https://api.geekdo.com/api/trends/plays_delta"
+)
+
+type TrendInterval string
+
+const (
+	TrendIntervalWeek  TrendInterval = "week"
+	TrendIntervalMonth TrendInterval = "month"
 )
 
 func (bgg *BGG) TopPages(ctx context.Context, page int) ([]int64, error) {
@@ -75,9 +85,57 @@ type hotnessStruct struct {
 	} `json:"items"`
 }
 
+type trendsStruct struct {
+	Items []struct {
+		ID   string `json:"id"`
+		Item struct {
+			Type           string `json:"type"`
+			ID             string `json:"id"`
+			Name           string `json:"name"`
+			Href           string `json:"href"`
+			Label          string `json:"label"`
+			Labelpl        string `json:"labelpl"`
+			HasAngularLink bool   `json:"hasAngularLink"`
+			Descriptors    []struct {
+				Name         string `json:"name"`
+				DisplayValue string `json:"displayValue"`
+			} `json:"descriptors"`
+			Breadcrumbs []any `json:"breadcrumbs"`
+			ImageSets   struct {
+				Square100 struct {
+					Src   string `json:"src"`
+					Src2X string `json:"src@2x"`
+				} `json:"square100"`
+				Mediacard100 struct {
+					Src   string `json:"src"`
+					Src2X string `json:"src@2x"`
+				} `json:"mediacard100"`
+				Mediacard struct {
+					Src   string `json:"src"`
+					Src2X string `json:"src@2x"`
+				} `json:"mediacard"`
+			} `json:"imageSets"`
+			Imageid       int `json:"imageid"`
+			NameSortIndex int `json:"nameSortIndex"`
+		} `json:"item"`
+		Rank        int    `json:"rank"`
+		Description string `json:"description"`
+		Delta       int    `json:"delta"`
+		Appearances int    `json:"appearances"`
+	} `json:"items"`
+	Interval string    `json:"interval"`
+	EndDate  time.Time `json:"endDate"`
+}
+
 type IDDelta struct {
 	ID    int64
 	Delta int
+}
+
+type TrendOutput struct {
+	ID          int64
+	Delta       int
+	Appearances int
 }
 
 func (bgg *BGG) Hotness(ctx context.Context, count int) ([]IDDelta, error) {
@@ -118,6 +176,85 @@ func (bgg *BGG) Hotness(ctx context.Context, count int) ([]IDDelta, error) {
 	}
 
 	return final, nil
+}
+
+func (bgg *BGG) trends(ctx context.Context, u string) ([]TrendOutput, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
+	if err != nil {
+		return nil, fmt.Errorf("create request failed: %w", err)
+	}
+	resp, err := bgg.do(req)
+	if err != nil {
+		return nil, fmt.Errorf("get request failed: %w", err)
+	}
+	defer func() {
+		_ = resp.Body.Close()
+	}()
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("read failed: %w", err)
+	}
+	result := trendsStruct{}
+	err = json.Unmarshal(data, &result)
+	if err != nil {
+		return nil, fmt.Errorf("JSON parsing failed: %w", err)
+	}
+
+	final := make([]TrendOutput, len(result.Items))
+	for i := range result.Items {
+		final[i].ID = safeInt(result.Items[i].Item.ID)
+		final[i].Delta = result.Items[i].Delta
+		final[i].Appearances = result.Items[i].Appearances
+	}
+
+	return final, nil
+}
+
+// BestSellers returns the best sellers of the week starting from the given date. The start day should be Monday, so the
+// function will calculate the previous Monday if the given date is not Monday.
+func (bgg *BGG) BestSellers(ctx context.Context, start time.Time) ([]TrendOutput, error) {
+	start = getPreviousDay(start, time.Monday)
+	u := bgg.buildURL(trendBestSeller, map[string]string{
+		"interval":  string(TrendIntervalWeek),
+		"startDate": start.Format("2006-01-02"),
+	})
+
+	return bgg.trends(ctx, u)
+}
+
+func (bgg *BGG) MostPlays(ctx context.Context, interval TrendInterval, start time.Time) ([]TrendOutput, error) {
+	switch interval {
+	case TrendIntervalWeek:
+		start = getPreviousDay(start, time.Monday)
+	case TrendIntervalMonth:
+		start = getStartOfTheMonth(start)
+	default:
+		return nil, fmt.Errorf("invalid interval: %q", interval)
+	}
+	u := bgg.buildURL(trendMostPlays, map[string]string{
+		"interval":  string(interval),
+		"startDate": start.Format("2006-01-02"),
+	})
+
+	return bgg.trends(ctx, u)
+}
+
+func (bgg *BGG) TrendingPlays(ctx context.Context, interval TrendInterval, start time.Time) ([]TrendOutput, error) {
+	switch interval {
+	case TrendIntervalWeek:
+		start = getPreviousDay(start, time.Monday)
+	case TrendIntervalMonth:
+		start = getStartOfTheMonth(start)
+	default:
+		return nil, fmt.Errorf("invalid interval: %q", interval)
+	}
+	u := bgg.buildURL(trendsTrendPlays, map[string]string{
+		"interval":  string(interval),
+		"startDate": start.Format("2006-01-02"),
+	})
+
+	return bgg.trends(ctx, u)
 }
 
 type geekListResult struct {
