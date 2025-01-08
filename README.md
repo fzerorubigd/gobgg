@@ -83,6 +83,6 @@ import (
 	"github.com/fzerorubigd/gobgg"
 )
 
-rl := ratelimit.New(10, Per(60*time.Second)) // creates a 10 per minutes rate limiter.
+rl := ratelimit.New(10, ratelimit.Per(60*time.Second)) // creates a 10 per minutes rate limiter.
 client := gobgg.NewBGGClient(gobgg.SetLimiter(rl))
 ```
