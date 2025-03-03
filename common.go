@@ -240,7 +240,7 @@ func safeInt(str string) int64 {
 	return i64
 }
 
-func safeIntInterface(in interface{}) int64 {
+func safeIntInterface(in any) int64 {
 	switch t := in.(type) {
 	case string:
 		return safeInt(t)
@@ -279,7 +279,7 @@ type bggError struct {
 	Message string   `xml:"message"`
 }
 
-func decode(r io.Reader, in interface{}) error {
+func decode(r io.Reader, in any) error {
 	buf, err := io.ReadAll(r)
 	if err != nil {
 		return fmt.Errorf("error reading data: %w", err)
