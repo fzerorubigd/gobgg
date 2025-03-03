@@ -12,7 +12,7 @@ const loginPath = "login/api/v1"
 
 // Login tries to login into the bgg using the credentials and returns the cookies required for next calls
 func (bgg *BGG) Login(ctx context.Context, username, password string) error {
-	payload := map[string]interface{}{
+	payload := map[string]any{
 		"credentials": map[string]string{
 			"username": username,
 			"password": password,

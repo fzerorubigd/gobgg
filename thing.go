@@ -396,15 +396,15 @@ func (rb RankBreakDown) BayesianAverage(added int64) float64 {
 }
 
 type rankBreakDownResponse struct {
-	Type       string                 `json:"type"`
-	Options    map[string]interface{} `json:"options"`
-	Formatters []interface{}          `json:"formatters"`
+	Type       string         `json:"type"`
+	Options    map[string]any `json:"options"`
+	Formatters []any          `json:"formatters"`
 	Data       struct {
-		Cols []interface{} `json:"cols"`
+		Cols []any `json:"cols"`
 		Rows []struct {
 			C []struct {
-				V interface{} `json:"v"`
-				F interface{} `json:"f"`
+				V any `json:"v"`
+				F any `json:"f"`
 			} `json:"c"`
 		} `json:"rows"`
 	} `json:"data"`

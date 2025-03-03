@@ -18,11 +18,11 @@ const (
 
 type (
 	rankResponse struct {
-		Items []map[string]interface{} `json:"items"`
+		Items []map[string]any `json:"items"`
 	}
 
 	rankRequest struct {
-		Item map[string]interface{} `json:"item"`
+		Item map[string]any `json:"item"`
 	}
 )
 
