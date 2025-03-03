@@ -11,6 +11,7 @@ jobs:
       - name: Run tests 
         env:
           BGG_PASSWORD: ${{ secrets.BGG_PASSWORD }}
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: |
           go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
           bash <(curl -s https://codecov.io/bash)
