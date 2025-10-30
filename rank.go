@@ -47,6 +47,9 @@ func (bgg *BGG) myCollections(ctx context.Context, objectID int64) (*rankRespons
 	if err != nil {
 		return nil, fmt.Errorf("failed to create the request: %w", err)
 	}
+	if bgg.bearerToken != "" {
+		req.Header.Add("Authorization", "Bearer "+bgg.bearerToken)
+	}
 
 	req.Header.Add("content-type", "application/json")
 	bgg.requestCookies(req)

@@ -159,6 +159,9 @@ func (bgg *BGG) TopPages(ctx context.Context, page int) ([]int64, error) {
 	if err != nil {
 		return nil, fmt.Errorf("create request failed: %w", err)
 	}
+	if bgg.bearerToken != "" {
+		req.Header.Add("Authorization", "Bearer "+bgg.bearerToken)
+	}
 	resp, err := bgg.do(req)
 	if err != nil {
 		return nil, fmt.Errorf("get request failed: %w", err)

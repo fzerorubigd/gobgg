@@ -354,6 +354,9 @@ func (bgg *BGG) GetCollection(ctx context.Context, username string, options ...C
 	if err != nil {
 		return nil, fmt.Errorf("create request failed: %w", err)
 	}
+	if bgg.bearerToken != "" {
+		req.Header.Add("Authorization", "Bearer "+bgg.bearerToken)
+	}
 
 	bgg.requestCookies(req)
 

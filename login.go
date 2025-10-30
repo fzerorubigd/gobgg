@@ -29,6 +29,9 @@ func (bgg *BGG) Login(ctx context.Context, username, password string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create the request: %w", err)
 	}
+	if bgg.bearerToken != "" {
+		req.Header.Add("Authorization", "Bearer "+bgg.bearerToken)
+	}
 
 	req.Header.Add("content-type", "application/json")
 

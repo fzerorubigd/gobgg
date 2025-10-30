@@ -28,8 +28,9 @@ type BGG struct {
 	limiter Limiter
 
 	// I prefer not to use the cookie jar since this is simpler
-	cookies  []*http.Cookie
-	username string
+	cookies     []*http.Cookie
+	username    string
+	bearerToken string
 
 	lock sync.RWMutex
 }
@@ -132,6 +133,13 @@ func SetCookies(username string, c []*http.Cookie) OptionSetter {
 func SetLimiter(limiter Limiter) OptionSetter {
 	return func(bgg *BGG) {
 		bgg.limiter = limiter
+	}
+}
+
+// SetBearerToken set the token to use when accessing the BGG API
+func SetBearerToken(token string) OptionSetter {
+	return func(bgg *BGG) {
+		bgg.bearerToken = token
 	}
 }
 

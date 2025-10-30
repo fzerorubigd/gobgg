@@ -147,6 +147,9 @@ func (bgg *BGG) Plays(ctx context.Context, setter ...PlaysOptionSetter) (*Plays,
 	if err != nil {
 		return nil, fmt.Errorf("create request failed: %w", err)
 	}
+	if bgg.bearerToken != "" {
+		req.Header.Add("Authorization", "Bearer "+bgg.bearerToken)
+	}
 
 	resp, err := bgg.do(req)
 	if err != nil {
