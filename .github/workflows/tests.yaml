@@ -8,8 +8,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v4
-      - name: Run tests 
+      - name: Run tests
         env:
+          BGG_TOKEN: ${{ secrets.BGG_TOKEN }}
           BGG_PASSWORD: ${{ secrets.BGG_PASSWORD }}
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: |
