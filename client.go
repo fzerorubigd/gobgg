@@ -30,6 +30,7 @@ type BGG struct {
 	// I prefer not to use the cookie jar since this is simpler
 	cookies  []*http.Cookie
 	username string
+	token    string
 
 	lock sync.RWMutex
 }
@@ -88,6 +89,9 @@ func (bgg *BGG) buildURL(path string, args map[string]string) string {
 
 func (bgg *BGG) do(req *http.Request) (*http.Response, error) {
 	bgg.limiter.Take()
+	if bgg.token != "" {
+		req.Header.Set("Authorization", "Bearer "+bgg.token)
+	}
 	return bgg.client.Do(req)
 }
 
@@ -125,6 +129,13 @@ func SetCookies(username string, c []*http.Cookie) OptionSetter {
 	return func(bgg *BGG) {
 		bgg.cookies = c
 		bgg.username = username
+	}
+}
+
+// SetAuthToken sets the bearer token for authentication
+func SetAuthToken(token string) OptionSetter {
+	return func(bgg *BGG) {
+		bgg.token = token
 	}
 }
 

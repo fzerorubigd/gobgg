@@ -2,6 +2,7 @@ package gobgg_test
 
 import (
 	"context"
+	"os"
 	"testing"
 
 	"github.com/fzerorubigd/gobgg"
@@ -10,9 +11,13 @@ import (
 )
 
 func TestGetCollection(t *testing.T) {
+	token := os.Getenv("BGG_TOKEN")
+	if token == "" {
+		t.Skip("BGG_TOKEN is not set")
+	}
 	ctx := context.Background()
 
-	bgg := gobgg.NewBGGClient()
+	bgg := gobgg.NewBGGClient(gobgg.SetAuthToken(token))
 	col, err := bgg.GetCollection(ctx, "gobgg")
 	require.NoError(t, err)
 	// I create the user and add some games to it

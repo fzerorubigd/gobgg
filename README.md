@@ -1,5 +1,7 @@
 Boardgamegeek API Client for Golang
 ===
+[![Powered by BoardGameGeek](https://upload.wikimedia.org/wikipedia/commons/e/e7/BoardGameGeek_Logo.svg)](https://boardgamegeek.com)
+
 [![Go Report Card](https://goreportcard.com/badge/github.com/fzerorubigd/gobgg)](https://goreportcard.com/report/github.com/fzerorubigd/gobgg)
 [![codecov](https://codecov.io/gh/fzerorubigd/gobgg/branch/master/graph/badge.svg?token=G7VH4EDM0Y)](https://codecov.io/gh/fzerorubigd/gobgg)
 [![Go Reference](https://pkg.go.dev/badge/github.com/fzerorubigd/gobgg.svg)](https://pkg.go.dev/github.com/fzerorubigd/gobgg)
