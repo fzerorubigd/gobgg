@@ -1,6 +1,6 @@
 Boardgamegeek API Client for Golang
 ===
-[![Powered by BoardGameGeek](https://upload.wikimedia.org/wikipedia/commons/e/e7/BoardGameGeek_Logo.svg)](https://boardgamegeek.com)
+[![Powered by BoardGameGeek](https://cf.geekdo-images.com/HZy35cmzmmyV9BarSuk6ug__small/img/gbE7sulIurZE_Tx8EQJXnZSKI6w=/fit-in/200x150/filters:strip_icc()/pic7779581.png)](https://boardgamegeek.com)
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/fzerorubigd/gobgg)](https://goreportcard.com/report/github.com/fzerorubigd/gobgg)
 [![codecov](https://codecov.io/gh/fzerorubigd/gobgg/branch/master/graph/badge.svg?token=G7VH4EDM0Y)](https://codecov.io/gh/fzerorubigd/gobgg)
@@ -8,18 +8,20 @@ Boardgamegeek API Client for Golang
 
 Basics
 ---
-Create a new client using the `NewBGGClient` also you can use the `Login` function 
-to set the cookies, some API (like posting plays) needs the login cookies. 
-
-You can set the `http.Client`, or `http.Cookie` or using different domain (do you need to?)
+Create a new client using the `NewBGGClient`. Providing a bearer token is mandatory.
 
 ```go
-bgg := gobgg.NewBGGClient(gobgg.SetClient(client))
-// Setting the cookies (not a requirement if you want to only use public API)
-if err := bgg.Login("user", "password"); err != nil {
-	log.Fatalf("Login failed with error: %q", err)	
-}
+bgg := gobgg.NewBGGClient(gobgg.SetAuthToken("YOUR_BGG_TOKEN"))
 ```
+
+You can also set other options, like a custom `http.Client`:
+```go
+bgg := gobgg.NewBGGClient(
+    gobgg.SetAuthToken("YOUR_BGG_TOKEN"),
+    gobgg.SetClient(client),
+)
+```
+
 Collection API
 ---
 Getting the collection in boardgamegeek is a little tricky, so the library will retry with a backoff
